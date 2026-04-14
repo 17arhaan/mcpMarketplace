@@ -1,0 +1,22 @@
+{
+  "name": "weather",
+  "version": "1.0.0",
+  "description": "Get current weather for any city via Open-Meteo (no API key required)",
+  "entry": "server.py",
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get current temperature and conditions for a city",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "City name, e.g. 'London'"
+          }
+        },
+        "required": ["city"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+# ── Python / API ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+.env
+*.env
+!.env.example
+.python-version
+
+# ── Node / CLI ────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+cli/dist/
+
+# ── Next.js / Web ─────────────────────────────────────────────
+web/.next/
+web/out/
+web/.vercel
+next-env.d.ts
+
+# ── OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editor ────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Secrets / certs ───────────────────────────────────────────
+*.pem
+*.key
+*.p12
+
+# ── Docker ────────────────────────────────────────────────────
+infra/postgres_data/
+infra/minio_data/
+
+# ── Misc ──────────────────────────────────────────────────────
+coverage/
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
