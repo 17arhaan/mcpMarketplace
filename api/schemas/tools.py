@@ -1,0 +1,46 @@
+from pydantic import BaseModel
+import uuid
+from datetime import datetime
+from api.models.tool import ToolStatus, SandboxStatus
+
+
+class ToolVersionOut(BaseModel):
+    id: uuid.UUID
+    version: str
+    sandbox_status: SandboxStatus
+    published_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ToolOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    slug: str
+    description: str
+    latest_version: str | None
+    install_count: int
+    avg_rating: float | None
+    status: ToolStatus
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ToolDetail(ToolOut):
+    versions: list[ToolVersionOut] = []
+
+
+class ToolCreate(BaseModel):
+    name: str
+    slug: str
+    description: str
+    version: str
+    mcp_schema: dict
+
+
+class ToolListResponse(BaseModel):
+    tools: list[ToolOut]
+    total: int
+    page: int
+    limit: int
