@@ -1,4 +1,4 @@
-from fastapi import Request, HTTPException
+from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from api.db import get_db
@@ -6,15 +6,7 @@ from api.models.user import User
 from api.services.auth import decode_jwt, hash_api_key
 
 
-async def get_current_user(request: Request, db: Session = next(get_db.__wrapped__() if hasattr(get_db, '__wrapped__') else iter([None]))) -> User:  # noqa
-    # This gets injected properly via Depends — see usage in routers
-    raise HTTPException(status_code=401)
-
-
-def make_auth_dependency():
-    from fastapi import Depends
-    from api.db import get_db
-
+def _make_auth_dependency():
     async def _get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
         api_key = request.headers.get("X-API-Key")
         if api_key:
@@ -39,4 +31,4 @@ def make_auth_dependency():
     return _get_current_user
 
 
-get_current_user = make_auth_dependency()
+get_current_user = _make_auth_dependency()

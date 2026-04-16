@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routers import auth, tools, installs, ratings
+from api.routers import auth, installs, ratings, tools
 
 app = FastAPI(
     title="MCP Tool Marketplace",

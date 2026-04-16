@@ -1,12 +1,11 @@
-import tempfile
-import os
 import logging
+import os
+import tempfile
 from dataclasses import dataclass
 
 import docker
-from docker.errors import ContainerError, ImageNotFound
-
 from api.services.storage import download_to_dir
+from docker.errors import ContainerError, ImageNotFound
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def run_sandbox(s3_key: str, mcp_schema: dict) -> SandboxResult:
         try:
             result = client.containers.run(
                 image="mcp-sandbox:latest",
-                command=f"python /runner.py /workspace",
+                command="python /runner.py /workspace",
                 network_disabled=True,
                 mem_limit="256m",
                 cpu_shares=512,
