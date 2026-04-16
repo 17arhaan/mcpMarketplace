@@ -1,14 +1,22 @@
 {
   "name": "mcp-get",
   "version": "0.1.0",
-  "description": "CLI for the MCP Tool Marketplace",
+  "description": "CLI for the MCP Tool Marketplace — discover, install, and publish MCP tools",
+  "author": "Arhaan Girdhar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/17arhaan/mcpMarketplace"
+  },
+  "keywords": ["mcp", "model-context-protocol", "ai", "tools", "registry", "cli"],
   "bin": {
     "mcp-get": "./dist/index.js"
   },
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "lint": "eslint src --ext .ts"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",

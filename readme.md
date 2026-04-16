@@ -239,7 +239,7 @@ Full OpenAPI docs at `http://localhost:8000/docs` when running locally.
 - [x] **Phase 2** — S3 upload/download, CLI install & publish, checksum verification
 - [x] **Phase 3** — Docker sandbox validation pipeline, status updates, seed tools
 - [x] **Phase 4** — Full-text search (pg_trgm), Redis caching, rate limiting, ratings, tag filtering
-- [ ] **Phase 5** — CI/CD pipeline, npm publish prep, end-to-end testing
+- [x] **Phase 5** — GitHub Actions CI, npm publish workflow, e2e test script
 
 See [GitHub Issues](https://github.com/17arhaan/mcpMarketplace/issues) for detailed task breakdowns.
 
