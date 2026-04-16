@@ -1,0 +1,9 @@
+{
+  "name": "github-search",
+  "slug": "github-search",
+  "description": "Search GitHub repositories and code using the public API. Find repos by keyword, stars, and language.",
+  "version": "1.0.0",
+  "runtime": "python",
+  "entry": "server.py",
+  "tags": ["developer-tools", "search"]
+}

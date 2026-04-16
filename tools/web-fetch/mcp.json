@@ -1,0 +1,9 @@
+{
+  "name": "web-fetch",
+  "slug": "web-fetch",
+  "description": "Fetch web pages and extract their text content. HTML is automatically stripped to plain text.",
+  "version": "1.0.0",
+  "runtime": "python",
+  "entry": "server.py",
+  "tags": ["web", "utilities"]
+}

@@ -1,9 +1,25 @@
 import uuid
-from sqlalchemy import String, Text, Integer, Numeric, DateTime, Enum, ForeignKey, func
+from sqlalchemy import String, Text, Integer, Numeric, DateTime, Enum, ForeignKey, Table, Column, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 import enum
 from api.db import Base
+
+
+tool_tags = Table(
+    "tool_tags",
+    Base.metadata,
+    Column("tool_id", UUID(as_uuid=True), ForeignKey("tools.id", ondelete="CASCADE"), primary_key=True),
+    Column("tag_id", UUID(as_uuid=True), ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    slug: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
 
 
 class ToolStatus(str, enum.Enum):
@@ -36,6 +52,7 @@ class Tool(Base):
 
     versions: Mapped[list["ToolVersion"]] = relationship("ToolVersion", back_populates="tool", cascade="all, delete-orphan")
     author: Mapped["User"] = relationship("User", foreign_keys=[author_id])  # type: ignore[name-defined]
+    tags: Mapped[list["Tag"]] = relationship("Tag", secondary=tool_tags, lazy="joined")
 
 
 class ToolVersion(Base):

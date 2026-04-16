@@ -1,63 +1,17 @@
 # MCP Marketplace
 
-An npm-style registry for [Model Context Protocol](https://modelcontextprotocol.io) tools — the emerging standard for giving AI agents pluggable capabilities. Developers publish MCP servers to the registry; others discover and install them with a CLI.
+A registry for [Model Context Protocol](https://modelcontextprotocol.io) tools. Publish, discover, and install MCP servers with a single command.
 
-```
-mcp-get search weather
+```bash
 mcp-get install weather
-mcp-get publish ./my-tool
+mcp-get ask "I need a tool to query databases"
 ```
-
----
-
-## What is this?
-
-MCP (Model Context Protocol) lets AI agents like Claude call external tools — search GitHub, query a database, fetch a URL. But there's no central place to share them. MCP Marketplace fills that gap: a registry where developers publish tool servers and anyone can install them with one command.
-
-Every published tool runs in an isolated Docker sandbox before going live. No broken tools, no malicious code.
 
 ---
 
 ## Stack
 
-| Layer | Tech |
-|---|---|
-| Registry API | FastAPI (Python) |
-| CLI | TypeScript + commander.js |
-| Web UI | Next.js 16 (App Router) |
-| Database | PostgreSQL + `pg_trgm` for full-text search |
-| Cache / rate limiting | Redis |
-| Object storage | S3-compatible (MinIO locally, AWS S3 in prod) |
-| Sandbox | Docker — isolated, network-disabled, 30s timeout |
-| Auth | JWT (web) + API keys (CLI) |
-
----
-
-## Project structure
-
-```
-mcp-marketplace/
-├── api/                  # FastAPI backend
-│   ├── routers/          # tools, auth, installs, ratings
-│   ├── models/           # SQLAlchemy ORM
-│   ├── schemas/          # Pydantic request/response
-│   └── services/         # auth, storage (S3), sandbox (Docker)
-├── cli/                  # mcp-get CLI (TypeScript)
-│   └── src/commands/     # install, publish, search, login, list
-├── web/                  # Next.js browse UI
-│   └── app/
-│       ├── page.tsx              # search + browse
-│       ├── tools/[slug]/page.tsx # tool detail + versions
-│       └── publish/page.tsx      # publish guide
-├── infra/
-│   ├── docker-compose.yml        # local Postgres + Redis + MinIO
-│   ├── init.sql                  # schema + indexes
-│   ├── Dockerfile.sandbox        # tool validation container
-│   ├── Dockerfile.api            # production API image
-│   └── runner.py                 # sandbox runner script
-└── tools/
-    └── weather/                  # seed tool — no API key needed
-```
+FastAPI | TypeScript CLI | Next.js 16 | PostgreSQL | Redis | S3 | Docker Sandbox
 
 ---
 
@@ -66,19 +20,16 @@ mcp-marketplace/
 ### Prerequisites
 
 - Docker Desktop
-- Python 3.11+
+- Python 3.12+
 - Node.js 20+
 
-### 1. Start local infrastructure
+### 1. Infrastructure
 
 ```bash
-cd infra
-docker compose up -d
+cd infra && docker compose up -d
 ```
 
-This starts Postgres on `5432`, Redis on `6379`, and MinIO on `9000` (console at `9001`).
-
-### 2. Start the API
+### 2. API
 
 ```bash
 cd api
@@ -88,25 +39,16 @@ pip install -r requirements.txt
 uvicorn api.main:app --reload
 ```
 
-API runs at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
-
-### 3. Start the web UI
+### 3. Web UI
 
 ```bash
-cd web
-npm install
-npm run dev
+cd web && npm install && npm run dev
 ```
 
-Opens at `http://localhost:3000`.
-
-### 4. Set up the CLI
+### 4. CLI
 
 ```bash
-cd cli
-npm install
-npm run build
-npm link          # makes mcp-get available globally
+cd cli && npm install && npm run build && npm link
 ```
 
 ### 5. Try it
@@ -116,110 +58,73 @@ mcp-get login
 mcp-get publish ./tools/weather
 mcp-get search weather
 mcp-get install weather
-mcp-get list
 ```
 
 ---
 
-## CLI commands
+## CLI
 
 | Command | Description |
 |---|---|
-| `mcp-get login` | Authenticate and save API key to `~/.mcp/config.json` |
-| `mcp-get search <query>` | Full-text search the registry |
-| `mcp-get install <slug>` | Download, verify, extract, and inject into `mcp.json` |
-| `mcp-get install <slug@version>` | Install a specific version |
-| `mcp-get publish <dir>` | Package and publish a tool from a directory |
-| `mcp-get list` | Show all installed tools |
-| `mcp-get info <slug>` | Full tool detail — versions, ratings, sandbox status |
+| `mcp-get login` | Authenticate |
+| `mcp-get search <query>` | Search the registry |
+| `mcp-get install <slug>` | Install a tool |
+| `mcp-get uninstall <slug>` | Remove a tool |
+| `mcp-get update` | Update all tools |
+| `mcp-get publish <dir>` | Publish a tool |
+| `mcp-get info <slug>` | Tool details |
+| `mcp-get list` | Installed tools |
+| `mcp-get ask "<query>"` | AI-powered discovery |
 
 ---
 
-## Publishing a tool
+## AI Discovery
+
+Describe what you need in plain English — an agentic AI loop searches the registry, evaluates tools, and recommends the best fit.
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+mcp-get ask "I need to search GitHub repositories"
+```
+
+Also available at `http://localhost:3000/discover`.
+
+---
+
+## Publishing
 
 Add `mcp.json` to your tool directory:
 
 ```json
 {
   "name": "my-tool",
+  "slug": "my-tool",
   "version": "1.0.0",
   "description": "What your tool does",
-  "entry": "server.js",
-  "tools": [
-    {
-      "name": "my_function",
-      "description": "What this function does",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "param": { "type": "string" }
-        },
-        "required": ["param"]
-      }
-    }
-  ]
+  "entry": "server.py"
 }
 ```
 
-Then:
-
 ```bash
-mcp-get login
 mcp-get publish ./my-tool
 ```
 
-Your tool enters a Docker sandbox — no network access, 256 MB RAM, 30-second timeout. If it passes, it goes live automatically.
+Tools are validated in an isolated Docker sandbox before going live.
 
 ---
 
-## API reference
+## Testing
 
-Full OpenAPI docs at `http://localhost:8000/docs` when running locally.
-
-| Endpoint | Description |
-|---|---|
-| `GET /tools?q=&sort=&tag=` | Browse and search tools |
-| `GET /tools/{slug}` | Tool detail + all versions |
-| `GET /tools/{slug}/latest` | Manifest + presigned download URL |
-| `POST /tools` | Publish a new tool (multipart: tarball + metadata) |
-| `POST /auth/register` | Create account |
-| `POST /auth/login` | Returns JWT |
-| `POST /auth/api-key` | Generate CLI API key (returned once) |
-| `POST /installs` | Log an install |
-| `POST /ratings` | Rate a tool (1–5, one per user) |
+```bash
+./scripts/e2e-test.sh
+```
 
 ---
 
-## Environment variables
+## License
 
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://mcp:mcp@localhost:5432/mcp` | Postgres connection |
-| `REDIS_URL` | `redis://localhost:6379` | Redis connection |
-| `S3_BUCKET` | `mcp-tools-dev` | Bucket for tool tarballs |
-| `S3_ENDPOINT` | `http://localhost:9000` | MinIO endpoint (local) |
-| `S3_ACCESS_KEY` | `minioadmin` | S3 access key |
-| `S3_SECRET_KEY` | `minioadmin` | S3 secret key |
-| `JWT_SECRET` | — | Random 32-byte hex string |
-| `DOCKER_HOST` | `unix:///var/run/docker.sock` | Docker socket for sandbox |
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
 
----
+You may use, modify, and distribute this software, but any modified version — including use over a network (e.g., as a hosted service) — must also be released under AGPL-3.0 with full source code.
 
-## Build phases
-
-- [x] **Phase 1** — FastAPI skeleton, auth, tool CRUD, local infra
-- [ ] **Phase 2** — S3 upload/download, CLI install & publish end-to-end
-- [ ] **Phase 3** — Docker sandbox: validation pipeline, status updates
-- [ ] **Phase 4** — Full-text search, Redis caching, rate limiting, ratings
-- [ ] **Phase 5** — Web UI polish, CLI `update` command, publish to npm
-
-See [GitHub Issues](https://github.com/17arhaan/mcpMarketplace/issues) for detailed task breakdowns.
-
----
-
-## Security
-
-- Tool packages are **never executed on the API server**. All validation runs inside a Docker container.
-- Containers have no network access, read-only filesystem (except `/tmp`), 256 MB memory cap, and run as a non-root user.
-- API keys are stored as SHA-256 hashes. The raw key is returned exactly once and never logged.
-- Passwords are bcrypt-hashed.
+See [LICENSE](LICENSE) for full terms.
