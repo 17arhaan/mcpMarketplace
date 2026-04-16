@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "CLI for the MCP Tool Marketplace — discover, install, and publish MCP tools",
   "author": "Arhaan Girdhar",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/17arhaan/mcpMarketplace"

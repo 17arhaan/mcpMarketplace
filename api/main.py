@@ -1,3 +1,4 @@
+# Copyright (c) 2025 Arhaan Girdhar. Licensed under AGPL-3.0.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 

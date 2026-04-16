@@ -87,3 +87,24 @@ jobs:
             echo "Checking $f"
             python -c "import json; json.load(open('$f'))"
           done
+
+  integrity:
+    name: Integrity & security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: License file exists
+        run: grep -q "GNU AFFERO GENERAL PUBLIC LICENSE" LICENSE
+      - name: No secrets in source
+        run: |
+          ! grep -r "sk-ant-\|sk_live_\|AKIA\|BEGIN RSA\|BEGIN PRIVATE" \
+            api/ cli/src/ web/app/ tools/ \
+            --include="*.py" --include="*.ts" --include="*.tsx" \
+            | grep -v ".example" | grep -v "node_modules"
+      - name: No .env files committed
+        run: |
+          ! find . -name ".env" -not -name ".env.example" -not -path "*/node_modules/*" | grep -q "."
+      - name: Copyright headers present
+        run: |
+          grep -q "Copyright.*Arhaan Girdhar" api/main.py
+          grep -q "Copyright.*Arhaan Girdhar" cli/src/index.ts

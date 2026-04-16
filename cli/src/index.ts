@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Copyright (c) 2025 Arhaan Girdhar. Licensed under AGPL-3.0.
 import { Command } from "commander";
 import { loginCommand } from "./commands/login";
 import { searchCommand } from "./commands/search";
