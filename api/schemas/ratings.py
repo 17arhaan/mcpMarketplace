@@ -1,6 +1,7 @@
-from pydantic import BaseModel, field_validator
 import uuid
 from datetime import datetime
+
+from pydantic import BaseModel, field_validator
 
 
 class RatingRequest(BaseModel):

@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from api.db import get_db
 from api.dependencies import get_current_user
 from api.models.rating import Rating
 from api.models.tool import Tool
 from api.models.user import User
-from api.schemas.ratings import RatingRequest, RatingOut, RatingListResponse
+from api.schemas.ratings import RatingListResponse, RatingOut, RatingRequest
 
 router = APIRouter(prefix="/ratings", tags=["ratings"])
 

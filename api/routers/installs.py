@@ -6,8 +6,8 @@ from api.dependencies import get_current_user
 from api.models.install import Install
 from api.models.tool import Tool, ToolStatus
 from api.models.user import User
-from api.schemas.installs import InstallRequest, InstallOut
-from api.services.cache import increment_install_count, get_install_count
+from api.schemas.installs import InstallOut, InstallRequest
+from api.services.cache import increment_install_count
 
 router = APIRouter(prefix="/installs", tags=["installs"])
 
@@ -35,6 +35,7 @@ def log_install(
     if redis_count >= BATCH_FLUSH_THRESHOLD:
         tool.install_count = (tool.install_count or 0) + redis_count
         from api.services.cache import get_redis
+
         get_redis().delete(f"install_count:{body.tool_id}")
 
     db.commit()

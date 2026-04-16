@@ -1,6 +1,6 @@
 import boto3
-from botocore.config import Config
 from api.config import settings
+from botocore.config import Config
 
 _client = None
 

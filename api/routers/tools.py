@@ -3,19 +3,19 @@ import json
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query, BackgroundTasks
-from sqlalchemy import func, or_, text
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from api.db import get_db
 from api.dependencies import get_current_user
-from api.models.tool import Tool, ToolVersion, ToolStatus, SandboxStatus, Tag, tool_tags
+from api.models.tool import SandboxStatus, Tag, Tool, ToolStatus, ToolVersion, tool_tags
 from api.models.user import User
-from api.schemas.tools import ToolOut, ToolDetail, ToolListResponse, ToolVersionOut
-from api.services.storage import upload_tarball, presigned_download_url
-from api.services.sandbox import run_sandbox
-from api.services.cache import cache_get, cache_set, cache_delete_pattern
+from api.schemas.tools import ToolDetail, ToolListResponse
+from api.services.cache import cache_delete_pattern, cache_get, cache_set
 from api.services.rate_limit import check_rate_limit
+from api.services.sandbox import run_sandbox
+from api.services.storage import presigned_download_url, upload_tarball
 
 logger = logging.getLogger(__name__)
 
@@ -114,9 +114,7 @@ def get_latest_manifest(slug: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Tool not found or not active")
 
     version = (
-        db.query(ToolVersion)
-        .filter(ToolVersion.tool_id == tool.id, ToolVersion.version == tool.latest_version)
-        .first()
+        db.query(ToolVersion).filter(ToolVersion.tool_id == tool.id, ToolVersion.version == tool.latest_version).first()
     )
     if not version:
         raise HTTPException(status_code=404, detail="Version not found")
@@ -137,11 +135,7 @@ def get_version_manifest(slug: str, version: str, db: Session = Depends(get_db))
     if not tool:
         raise HTTPException(status_code=404, detail="Tool not found")
 
-    tv = (
-        db.query(ToolVersion)
-        .filter(ToolVersion.tool_id == tool.id, ToolVersion.version == version)
-        .first()
-    )
+    tv = db.query(ToolVersion).filter(ToolVersion.tool_id == tool.id, ToolVersion.version == version).first()
     if not tv:
         raise HTTPException(status_code=404, detail="Version not found")
 
