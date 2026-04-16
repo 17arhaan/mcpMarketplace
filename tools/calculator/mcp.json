@@ -1,0 +1,9 @@
+{
+  "name": "calculator",
+  "slug": "calculator",
+  "description": "Evaluate mathematical expressions with support for arithmetic, sqrt, pow, log, trig functions, pi, and e.",
+  "version": "1.0.0",
+  "runtime": "python",
+  "entry": "server.py",
+  "tags": ["utilities"]
+}

@@ -43,11 +43,12 @@ mcp-marketplace/
 │   ├── schemas/          # Pydantic request/response
 │   └── services/         # auth, storage (S3), sandbox (Docker)
 ├── cli/                  # mcp-get CLI (TypeScript)
-│   └── src/commands/     # install, publish, search, login, list
+│   └── src/commands/     # install, publish, search, login, list, info, update, uninstall, ask
 ├── web/                  # Next.js browse UI
 │   └── app/
 │       ├── page.tsx              # search + browse
 │       ├── tools/[slug]/page.tsx # tool detail + versions
+│       ├── discover/page.tsx     # AI-powered tool discovery chat
 │       └── publish/page.tsx      # publish guide
 ├── infra/
 │   ├── docker-compose.yml        # local Postgres + Redis + MinIO
@@ -56,7 +57,10 @@ mcp-marketplace/
 │   ├── Dockerfile.api            # production API image
 │   └── runner.py                 # sandbox runner script
 └── tools/
-    └── weather/                  # seed tool — no API key needed
+    ├── weather/                  # weather lookup (Open-Meteo, no key)
+    ├── calculator/               # math expression evaluator
+    ├── web-fetch/                # fetch & extract web page text
+    └── github-search/            # search GitHub repos & code
 ```
 
 ---
@@ -131,7 +135,27 @@ mcp-get list
 | `mcp-get install <slug@version>` | Install a specific version |
 | `mcp-get publish <dir>` | Package and publish a tool from a directory |
 | `mcp-get list` | Show all installed tools |
+| `mcp-get uninstall <slug>` | Remove a tool from `mcp.json` and delete local files |
+| `mcp-get update` | Update all installed tools to their latest versions |
 | `mcp-get info <slug>` | Full tool detail — versions, ratings, sandbox status |
+| `mcp-get ask "<query>"` | AI-powered discovery — describe what you need in natural language |
+
+---
+
+## AI-powered tool discovery
+
+Describe what your agent needs in plain English — Claude searches the registry, evaluates the results, and recommends the best tool:
+
+**CLI:**
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+mcp-get ask "I need to query my Postgres database"
+# → Recommends postgres-query, explains why, offers to install
+```
+
+**Web UI:** Visit `http://localhost:3000/discover` for a chat interface that does the same thing.
+
+Under the hood, Claude uses tool-use to call the registry's search and detail APIs in an agentic loop — searching, reading tool schemas, and reasoning about which tool best fits your use case before recommending it.
 
 ---
 
@@ -179,9 +203,13 @@ Full OpenAPI docs at `http://localhost:8000/docs` when running locally.
 | Endpoint | Description |
 |---|---|
 | `GET /tools?q=&sort=&tag=` | Browse and search tools |
+| `GET /tools/tags` | List all available tags |
 | `GET /tools/{slug}` | Tool detail + all versions |
 | `GET /tools/{slug}/latest` | Manifest + presigned download URL |
+| `GET /tools/{slug}/{version}` | Specific version manifest + download URL |
 | `POST /tools` | Publish a new tool (multipart: tarball + metadata) |
+| `POST /tools/{slug}/versions` | Publish a new version of an existing tool |
+| `DELETE /tools/{slug}` | Deprecate a tool (author only) |
 | `POST /auth/register` | Create account |
 | `POST /auth/login` | Returns JWT |
 | `POST /auth/api-key` | Generate CLI API key (returned once) |
@@ -208,10 +236,10 @@ Full OpenAPI docs at `http://localhost:8000/docs` when running locally.
 ## Build phases
 
 - [x] **Phase 1** — FastAPI skeleton, auth, tool CRUD, local infra
-- [ ] **Phase 2** — S3 upload/download, CLI install & publish end-to-end
-- [ ] **Phase 3** — Docker sandbox: validation pipeline, status updates
-- [ ] **Phase 4** — Full-text search, Redis caching, rate limiting, ratings
-- [ ] **Phase 5** — Web UI polish, CLI `update` command, publish to npm
+- [x] **Phase 2** — S3 upload/download, CLI install & publish, checksum verification
+- [x] **Phase 3** — Docker sandbox validation pipeline, status updates, seed tools
+- [x] **Phase 4** — Full-text search (pg_trgm), Redis caching, rate limiting, ratings, tag filtering
+- [ ] **Phase 5** — CI/CD pipeline, npm publish prep, end-to-end testing
 
 See [GitHub Issues](https://github.com/17arhaan/mcpMarketplace/issues) for detailed task breakdowns.
 

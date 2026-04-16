@@ -52,6 +52,7 @@ export default function HomePage() {
           <p className="text-xs text-gray-500">npm for AI agent tools</p>
         </div>
         <nav className="flex gap-4 text-sm text-gray-400">
+          <Link href="/discover" className="hover:text-white transition-colors">Discover</Link>
           <Link href="/publish" className="hover:text-white transition-colors">Publish</Link>
         </nav>
       </header>
