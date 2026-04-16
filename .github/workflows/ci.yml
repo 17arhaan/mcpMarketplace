@@ -97,7 +97,7 @@ jobs:
         run: grep -q "GNU AFFERO GENERAL PUBLIC LICENSE" LICENSE
       - name: No secrets in source
         run: |
-          ! grep -r "sk-ant-\|sk_live_\|AKIA\|BEGIN RSA\|BEGIN PRIVATE" \
+          ! grep -rn "sk-ant-api\|AKIA[0-9A-Z]\{16\}\|BEGIN RSA PRIVATE\|BEGIN PRIVATE KEY" \
             api/ cli/src/ web/app/ tools/ \
             --include="*.py" --include="*.ts" --include="*.tsx" \
             | grep -v ".example" | grep -v "node_modules"

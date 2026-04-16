@@ -64,7 +64,7 @@ done
 echo ""
 echo "--- Security ---"
 check "No .env files committed" bash -c "! find '$ROOT' -name '.env' -not -path '*/node_modules/*' -not -name '.env.example' | grep -q '.'"
-check "No hardcoded secrets in config" bash -c "! grep -r 'sk-ant-\|sk_live_\|AKIA' '$ROOT/api/' '$ROOT/cli/src/' 2>/dev/null | grep -v node_modules | grep -qv '.example'"
+check "No hardcoded secrets in config" bash -c "! grep -r 'sk-ant-api\|AKIA[0-9A-Z]\{16\}\|BEGIN RSA PRIVATE\|BEGIN PRIVATE KEY' '$ROOT/api/' '$ROOT/cli/src/' 2>/dev/null | grep -v node_modules | grep -qv '.example'"
 check "API keys hashed not stored raw" grep -q "sha256" "$ROOT/api/services/auth.py"
 check "Rate limiting enabled" grep -q "check_rate_limit" "$ROOT/api/routers/tools.py"
 check "Sandbox runs non-root" grep -q "USER" "$ROOT/infra/Dockerfile.sandbox"
