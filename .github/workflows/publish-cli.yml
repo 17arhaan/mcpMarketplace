@@ -1,0 +1,55 @@
+name: Publish CLI to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run build
+
+      - name: Bump version
+        run: npm version ${{ inputs.version }} --no-git-tag-version
+
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit version bump
+        run: |
+          VERSION=$(node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json','utf8')); process.stdout.write(p.version);" --input-type=module)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore(cli): bump version to v${VERSION}"
+          git tag "cli-v${VERSION}"
+          git push && git push --tags

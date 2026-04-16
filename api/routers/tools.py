@@ -1,18 +1,23 @@
 import hashlib
 import json
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query, BackgroundTasks
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, text
 from sqlalchemy.orm import Session
 
 from api.db import get_db
 from api.dependencies import get_current_user
-from api.models.tool import Tool, ToolVersion, ToolStatus, SandboxStatus
+from api.models.tool import Tool, ToolVersion, ToolStatus, SandboxStatus, Tag, tool_tags
 from api.models.user import User
 from api.schemas.tools import ToolOut, ToolDetail, ToolListResponse, ToolVersionOut
 from api.services.storage import upload_tarball, presigned_download_url
 from api.services.sandbox import run_sandbox
+from api.services.cache import cache_get, cache_set, cache_delete_pattern
+from api.services.rate_limit import check_rate_limit
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tools", tags=["tools"])
 
@@ -47,11 +52,22 @@ def list_tools(
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
+    cache_key = f"tools:search:{q}:{tag}:{sort}:{page}:{limit}"
+    cached = cache_get(cache_key)
+    if cached:
+        return ToolListResponse(**cached)
+
     query = db.query(Tool).filter(Tool.status == ToolStatus.active)
 
+    if tag:
+        query = query.join(tool_tags).join(Tag).filter(Tag.slug == tag)
+
     if q:
+        ts_query = func.plainto_tsquery("english", q)
+        ts_vector = func.to_tsvector("english", Tool.name + " " + Tool.description)
         query = query.filter(
             or_(
+                ts_vector.op("@@")(ts_query),
                 Tool.name.ilike(f"%{q}%"),
                 Tool.description.ilike(f"%{q}%"),
             )
@@ -66,7 +82,21 @@ def list_tools(
 
     total = query.count()
     tools = query.offset((page - 1) * limit).limit(limit).all()
-    return ToolListResponse(tools=tools, total=total, page=page, limit=limit)
+    result = ToolListResponse(tools=tools, total=total, page=page, limit=limit)
+    cache_set(cache_key, result.model_dump(), ttl=300)
+    return result
+
+
+@router.get("/tags", tags=["tags"])
+def list_tags(db: Session = Depends(get_db)):
+    cache_key = "tools:tags:all"
+    cached = cache_get(cache_key)
+    if cached:
+        return cached
+    tags = db.query(Tag).order_by(Tag.name).all()
+    result = [{"name": t.name, "slug": t.slug} for t in tags]
+    cache_set(cache_key, result, ttl=3600)
+    return result
 
 
 @router.get("/{slug}", response_model=ToolDetail)
@@ -137,6 +167,8 @@ async def publish_tool(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    check_rate_limit(f"publish:{user.id}", max_requests=10, window_seconds=3600)
+
     if db.query(Tool).filter(Tool.slug == slug).first():
         raise HTTPException(status_code=409, detail="Slug already taken")
 
@@ -166,6 +198,7 @@ async def publish_tool(
     db.commit()
     db.refresh(tool)
 
+    cache_delete_pattern("tools:search:*")
     background_tasks.add_task(_run_sandbox_and_update, str(tv.id), s3_key, schema, db)
     return tool
 
@@ -208,6 +241,7 @@ async def publish_version(
     db.add(tv)
     db.commit()
 
+    cache_delete_pattern("tools:search:*")
     background_tasks.add_task(_run_sandbox_and_update, str(tv.id), s3_key, schema, db)
     return {"message": f"Version {version} submitted for validation"}
 
@@ -219,3 +253,4 @@ def deprecate_tool(slug: str, user: User = Depends(get_current_user), db: Sessio
         raise HTTPException(status_code=404, detail="Tool not found or not yours")
     tool.status = ToolStatus.deprecated
     db.commit()
+    cache_delete_pattern("tools:search:*")
