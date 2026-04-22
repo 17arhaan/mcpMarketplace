@@ -6,74 +6,66 @@ export const metadata: Metadata = {
 };
 
 const CLI_COMMANDS = [
-  { cmd: "mcp-get login", desc: "Authenticate and save your API key" },
-  { cmd: "mcp-get search <query>", desc: "Full-text search the tool registry" },
-  { cmd: "mcp-get install <slug>", desc: "Download, verify, and install a tool" },
-  { cmd: "mcp-get install <slug@version>", desc: "Install a specific version" },
-  { cmd: "mcp-get uninstall <slug>", desc: "Remove a tool and clean up config" },
-  { cmd: "mcp-get update", desc: "Update all installed tools to latest" },
-  { cmd: "mcp-get list", desc: "Show all installed tools" },
-  { cmd: "mcp-get info <slug>", desc: "View tool details, versions, and status" },
-  { cmd: "mcp-get publish <dir>", desc: "Package and publish a tool" },
-  { cmd: "mcp-get ask \"<query>\"", desc: "AI-powered tool discovery" },
+  { cmd: "mcp-get login", desc: "authenticate and save your API key" },
+  { cmd: "mcp-get search <query>", desc: "full-text search the tool registry" },
+  { cmd: "mcp-get install <slug>", desc: "download, verify, and install a tool" },
+  { cmd: "mcp-get install <slug@version>", desc: "install a specific version" },
+  { cmd: "mcp-get uninstall <slug>", desc: "remove a tool and clean up config" },
+  { cmd: "mcp-get update", desc: "update all installed tools to latest" },
+  { cmd: "mcp-get list", desc: "show all installed tools" },
+  { cmd: "mcp-get info <slug>", desc: "view tool details, versions, and status" },
+  { cmd: "mcp-get publish <dir>", desc: "package and publish a tool" },
+  { cmd: "mcp-get ask \"<query>\"", desc: "ai-powered tool discovery" },
 ];
 
 const API_ENDPOINTS = [
-  { method: "GET", path: "/tools", desc: "Search and browse tools" },
-  { method: "GET", path: "/tools/tags", desc: "List all tags" },
-  { method: "GET", path: "/tools/:slug", desc: "Tool detail" },
-  { method: "GET", path: "/tools/:slug/latest", desc: "Latest version manifest" },
-  { method: "POST", path: "/tools", desc: "Publish a new tool" },
-  { method: "POST", path: "/tools/:slug/versions", desc: "Publish a new version" },
-  { method: "DELETE", path: "/tools/:slug", desc: "Deprecate a tool" },
-  { method: "POST", path: "/auth/register", desc: "Create account" },
-  { method: "POST", path: "/auth/login", desc: "Login and get JWT" },
-  { method: "POST", path: "/auth/api-key", desc: "Generate API key" },
-  { method: "POST", path: "/installs", desc: "Log an install" },
-  { method: "POST", path: "/ratings", desc: "Rate a tool (1-5)" },
+  { method: "GET", path: "/tools", desc: "search and browse tools" },
+  { method: "GET", path: "/tools/tags", desc: "list all tags" },
+  { method: "GET", path: "/tools/:slug", desc: "tool detail" },
+  { method: "GET", path: "/tools/:slug/latest", desc: "latest version manifest" },
+  { method: "POST", path: "/tools", desc: "publish a new tool" },
+  { method: "POST", path: "/tools/:slug/versions", desc: "publish a new version" },
+  { method: "DELETE", path: "/tools/:slug", desc: "deprecate a tool" },
+  { method: "POST", path: "/auth/register", desc: "create account" },
+  { method: "POST", path: "/auth/login", desc: "login and get JWT" },
+  { method: "POST", path: "/auth/api-key", desc: "generate API key" },
+  { method: "POST", path: "/installs", desc: "log an install" },
+  { method: "POST", path: "/ratings", desc: "rate a tool (1-5)" },
 ];
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="scroll-mt-20 mb-16">
-      <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-[var(--border)]">{title}</h2>
+    <section id={id} className="scroll-mt-16 mb-12">
+      <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-4">{title}</h2>
       {children}
     </section>
   );
 }
 
-function CodeBlock({ children }: { children: string }) {
-  return (
-    <pre className="bg-[var(--surface)] border border-[var(--border)] rounded-xl px-5 py-4 font-mono text-sm text-gray-300 overflow-x-auto leading-relaxed">
-      {children}
-    </pre>
-  );
-}
-
 export default function DocsPage() {
   const NAV = [
-    { id: "getting-started", label: "Getting Started" },
-    { id: "cli", label: "CLI Commands" },
-    { id: "api", label: "API Reference" },
-    { id: "publishing", label: "Publishing Tools" },
-    { id: "mcp-protocol", label: "MCP Protocol" },
-    { id: "ai-discovery", label: "AI Discovery" },
-    { id: "security", label: "Security" },
+    { id: "getting-started", label: "getting-started" },
+    { id: "cli", label: "cli-commands" },
+    { id: "api", label: "api-reference" },
+    { id: "publishing", label: "publishing" },
+    { id: "mcp-protocol", label: "mcp-protocol" },
+    { id: "ai-discovery", label: "ai-discovery" },
+    { id: "security", label: "security" },
   ];
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-        {/* Sidebar nav */}
+    <main className="max-w-5xl mx-auto px-5 py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Sidebar */}
         <aside className="hidden lg:block">
-          <div className="sticky top-20">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Documentation</h3>
-            <nav className="space-y-1">
+          <div className="sticky top-16">
+            <h3 className="font-mono text-[11px] text-[#525252] uppercase tracking-wider mb-3">docs</h3>
+            <nav className="space-y-0.5 font-mono text-[13px]">
               {NAV.map((item) => (
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className="block text-sm text-gray-500 hover:text-white py-1.5 px-3 rounded-lg hover:bg-white/5 transition-all"
+                  className="block text-[#525252] hover:text-[#a3a3a3] py-1 transition-colors"
                 >
                   {item.label}
                 </a>
@@ -84,159 +76,131 @@ export default function DocsPage() {
 
         {/* Content */}
         <div className="lg:col-span-3">
-          <h1 className="text-3xl font-bold mb-2">Documentation</h1>
-          <p className="text-gray-400 mb-12">Everything you need to use and build for the MCP Marketplace.</p>
+          <div className="mb-8">
+            <p className="font-mono text-[#22c55e] text-sm mb-3">~ docs</p>
+            <h1 className="text-xl font-bold font-mono text-white mb-1">Documentation</h1>
+            <p className="text-[#a3a3a3] text-sm">everything you need to use and build for mcp-get.</p>
+          </div>
 
-          <Section id="getting-started" title="Getting Started">
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              MCP Marketplace is a registry for Model Context Protocol tools. Install the CLI to discover,
+          <Section id="getting-started" title="getting started">
+            <p className="text-[#a3a3a3] text-sm leading-relaxed mb-4">
+              mcp-get is a registry for Model Context Protocol tools. install the CLI to discover,
               install, and publish MCP servers.
             </p>
-            <CodeBlock>{`# Install the CLI
-npm install -g mcp-get
-
-# Login to your account
-mcp-get login
-
-# Search and install a tool
-mcp-get search weather
-mcp-get install weather
-
-# View installed tools
-mcp-get list`}</CodeBlock>
-            <p className="text-sm text-gray-500 mt-3">
-              Tools are installed to <code className="text-gray-400 bg-gray-800/50 px-1.5 py-0.5 rounded">~/.mcp/tools/</code> and
-              automatically added to your <code className="text-gray-400 bg-gray-800/50 px-1.5 py-0.5 rounded">mcp.json</code> configuration.
+            <div className="code-block rounded-lg">
+              <div className="px-4 py-3 font-mono text-sm space-y-1">
+                <p><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">install the cli</span></p>
+                <p><span className="text-[#22c55e]">$</span> <span className="text-white">npm install -g mcp-get</span></p>
+                <p className="pt-1"><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">login to your account</span></p>
+                <p><span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get login</span></p>
+                <p className="pt-1"><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">search and install a tool</span></p>
+                <p><span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get search</span> <span className="text-[#f59e0b]">weather</span></p>
+                <p><span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get install</span> <span className="text-[#f59e0b]">weather</span></p>
+              </div>
+            </div>
+            <p className="text-[12px] font-mono text-[#525252] mt-3">
+              tools install to <span className="text-[#a3a3a3]">~/.mcp/tools/</span> and auto-register in <span className="text-[#a3a3a3]">mcp.json</span>
             </p>
           </Section>
 
-          <Section id="cli" title="CLI Commands">
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border)]">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Command</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {CLI_COMMANDS.map((row, i) => (
-                    <tr key={i} className="border-b border-[var(--border)] last:border-0">
-                      <td className="px-4 py-2.5 font-mono text-blue-400 whitespace-nowrap">{row.cmd}</td>
-                      <td className="px-4 py-2.5 text-gray-400">{row.desc}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <Section id="cli" title="cli commands">
+            <div className="code-block rounded-lg divide-y divide-[#262626]">
+              {CLI_COMMANDS.map((row, i) => (
+                <div key={i} className="flex items-start justify-between px-4 py-2.5 font-mono text-sm gap-4">
+                  <span className="text-[#22c55e] whitespace-nowrap shrink-0">{row.cmd}</span>
+                  <span className="text-[#525252] text-right">{row.desc}</span>
+                </div>
+              ))}
             </div>
           </Section>
 
-          <Section id="api" title="API Reference">
-            <p className="text-gray-400 text-sm mb-4">
-              The API runs at <code className="text-gray-400 bg-gray-800/50 px-1.5 py-0.5 rounded">http://localhost:8000</code>.
-              Interactive OpenAPI docs at <code className="text-gray-400 bg-gray-800/50 px-1.5 py-0.5 rounded">/docs</code>.
+          <Section id="api" title="api reference">
+            <p className="text-[#a3a3a3] text-sm mb-4 font-mono">
+              base: <span className="text-white">http://localhost:8000</span> — openapi docs at <span className="text-white">/docs</span>
             </p>
-            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border)]">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider w-20">Method</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Path</th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {API_ENDPOINTS.map((row, i) => (
-                    <tr key={i} className="border-b border-[var(--border)] last:border-0">
-                      <td className="px-4 py-2.5">
-                        <span className={`text-xs font-mono font-medium px-1.5 py-0.5 rounded ${
-                          row.method === "GET" ? "text-emerald-400 bg-emerald-500/10" :
-                          row.method === "POST" ? "text-blue-400 bg-blue-500/10" :
-                          "text-red-400 bg-red-500/10"
-                        }`}>
-                          {row.method}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 font-mono text-gray-300 text-xs">{row.path}</td>
-                      <td className="px-4 py-2.5 text-gray-400">{row.desc}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="code-block rounded-lg divide-y divide-[#262626]">
+              {API_ENDPOINTS.map((row, i) => (
+                <div key={i} className="flex items-center px-4 py-2 font-mono text-xs gap-3">
+                  <span className={`w-12 shrink-0 font-medium ${
+                    row.method === "GET" ? "text-[#22c55e]" :
+                    row.method === "POST" ? "text-[#3b82f6]" :
+                    "text-red-400"
+                  }`}>
+                    {row.method}
+                  </span>
+                  <span className="text-white min-w-[180px]">{row.path}</span>
+                  <span className="text-[#525252]">{row.desc}</span>
+                </div>
+              ))}
             </div>
           </Section>
 
-          <Section id="publishing" title="Publishing Tools">
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              Create an <code className="text-gray-400 bg-gray-800/50 px-1.5 py-0.5 rounded">mcp.json</code> manifest
-              in your tool directory and run <code className="text-gray-400 bg-gray-800/50 px-1.5 py-0.5 rounded">mcp-get publish</code>.
+          <Section id="publishing" title="publishing tools">
+            <p className="text-[#a3a3a3] text-sm leading-relaxed mb-4">
+              create an <span className="text-white font-mono">mcp.json</span> manifest and run{" "}
+              <span className="text-white font-mono">mcp-get publish</span>.
             </p>
-            <CodeBlock>{`{
+            <div className="code-block rounded-lg">
+              <div className="px-4 py-3 font-mono text-sm text-[#a3a3a3] whitespace-pre leading-relaxed">{`{
   "name": "my-tool",
   "slug": "my-tool",
   "version": "1.0.0",
   "description": "What your tool does",
   "entry": "server.py",
   "tags": ["utilities"]
-}`}</CodeBlock>
-            <p className="text-sm text-gray-500 mt-3">
-              After publishing, your tool runs in a Docker sandbox with no network access, 256 MB memory,
-              and a 30-second timeout. If it passes, it goes live automatically.
+}`}</div>
+            </div>
+            <p className="text-[12px] font-mono text-[#525252] mt-3">
+              tools are sandboxed: no network, 256 MB memory, 30s timeout, non-root. passes → goes live.
             </p>
           </Section>
 
-          <Section id="mcp-protocol" title="MCP Protocol">
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              MCP tools communicate over stdio using JSON-RPC 2.0. Your server must handle these methods:
+          <Section id="mcp-protocol" title="mcp protocol">
+            <p className="text-[#a3a3a3] text-sm leading-relaxed mb-4">
+              MCP tools communicate over stdio using JSON-RPC 2.0. your server must handle:
             </p>
-            <div className="space-y-3 text-sm">
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4">
-                <code className="text-blue-400 font-mono font-medium">initialize</code>
-                <p className="text-gray-500 mt-1">Return server info and capabilities.</p>
-              </div>
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4">
-                <code className="text-blue-400 font-mono font-medium">tools/list</code>
-                <p className="text-gray-500 mt-1">Return array of available tools with input schemas.</p>
-              </div>
-              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4">
-                <code className="text-blue-400 font-mono font-medium">tools/call</code>
-                <p className="text-gray-500 mt-1">Execute a tool with given arguments and return results.</p>
+            <div className="code-block rounded-lg divide-y divide-[#262626]">
+              {[
+                { method: "initialize", desc: "return server info and capabilities" },
+                { method: "tools/list", desc: "return array of available tools with input schemas" },
+                { method: "tools/call", desc: "execute a tool with given arguments and return results" },
+              ].map((m) => (
+                <div key={m.method} className="flex items-center justify-between px-4 py-2.5 font-mono text-sm">
+                  <span className="text-[#3b82f6]">{m.method}</span>
+                  <span className="text-[#525252] text-xs">{m.desc}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[12px] font-mono text-[#525252] mt-3">
+              see <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline">modelcontextprotocol.io</a> for the full spec.
+            </p>
+          </Section>
+
+          <Section id="ai-discovery" title="ai discovery">
+            <p className="text-[#a3a3a3] text-sm leading-relaxed mb-4">
+              describe what your agent needs in plain english. claude searches the registry and recommends the best tools.
+            </p>
+            <div className="code-block rounded-lg">
+              <div className="px-4 py-3 font-mono text-sm space-y-1">
+                <p><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">cli (requires ANTHROPIC_API_KEY)</span></p>
+                <p><span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get ask</span> <span className="text-[#f59e0b]">&quot;I need to query a Postgres database&quot;</span></p>
+                <p className="pt-1"><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">or use the web ui at /discover</span></p>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-4">
-              See the <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">MCP specification</a> for full protocol details.
-            </p>
           </Section>
 
-          <Section id="ai-discovery" title="AI Discovery">
-            <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              Describe what your AI agent needs in plain English. Claude uses an agentic tool-use loop
-              to search the registry, evaluate tools, and recommend the best fit.
-            </p>
-            <CodeBlock>{`# CLI (requires ANTHROPIC_API_KEY)
-export ANTHROPIC_API_KEY=sk-ant-...
-mcp-get ask "I need to query a Postgres database"
-
-# Web UI
-# Visit /discover for a chat interface`}</CodeBlock>
-          </Section>
-
-          <Section id="security" title="Security">
-            <div className="space-y-3 text-sm">
+          <Section id="security" title="security">
+            <div className="code-block rounded-lg divide-y divide-[#262626]">
               {[
-                "Tools are never executed on the API server — all validation runs in isolated Docker containers.",
-                "Sandbox containers have no network access, read-only filesystem, 256 MB memory, and run as non-root.",
-                "API keys are stored as SHA-256 hashes. The raw key is returned once and never logged.",
-                "Passwords are bcrypt-hashed. JWTs expire after 1 hour.",
-                "Tarball checksums (SHA-256) are verified on download before extraction.",
-                "Publish endpoints are rate-limited to prevent abuse.",
+                "tools run in isolated docker containers — never on the api server",
+                "sandbox: no network, read-only fs, 256 MB, non-root",
+                "api keys stored as sha-256 hashes — raw key returned once",
+                "passwords bcrypt-hashed — jwts expire after 1 hour",
+                "tarball checksums (sha-256) verified on download",
+                "publish endpoints are rate-limited",
               ].map((text, i) => (
-                <div key={i} className="flex items-start gap-3 text-gray-400">
-                  <div className="w-5 h-5 rounded bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </div>
+                <div key={i} className="flex items-center gap-3 px-4 py-2.5 font-mono text-sm text-[#a3a3a3]">
+                  <span className="text-[#22c55e]">+</span>
                   {text}
                 </div>
               ))}

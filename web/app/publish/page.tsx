@@ -8,14 +8,11 @@ export const metadata: Metadata = {
 
 const STEPS = [
   {
-    title: "Install the CLI",
-    description: "Get mcp-get installed globally on your machine.",
-    code: "npm install -g mcp-get",
+    cmd: "npm install -g mcp-get",
+    label: "install the cli",
   },
   {
-    title: "Create your MCP server",
-    description: "Build a tool that speaks the MCP JSON-RPC protocol over stdio.",
-    code: `# server.py — minimal example
+    cmd: `# server.py — minimal mcp server
 import json, sys
 
 TOOLS = [{
@@ -42,118 +39,106 @@ def handle(req):
 for line in sys.stdin:
     if line.strip():
         print(json.dumps(handle(json.loads(line))), flush=True)`,
+    label: "create your mcp server",
   },
   {
-    title: "Add a manifest",
-    description: "Create an mcp.json file in your tool directory.",
-    code: `{
+    cmd: `{
   "name": "my-tool",
   "slug": "my-tool",
   "version": "1.0.0",
   "description": "What your tool does",
   "entry": "server.py"
 }`,
+    label: "add mcp.json manifest",
   },
   {
-    title: "Publish",
-    description: "Login and publish. Your tool enters a Docker sandbox for validation.",
-    code: `mcp-get login
+    cmd: `mcp-get login
 mcp-get publish ./my-tool`,
+    label: "publish",
   },
-];
-
-const SANDBOX_FEATURES = [
-  { icon: "shield", label: "No network access" },
-  { icon: "cpu", label: "256 MB memory limit" },
-  { icon: "clock", label: "30-second timeout" },
-  { icon: "user", label: "Non-root execution" },
 ];
 
 export default function PublishPage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
-      <div className="mb-12">
-        <h1 className="text-3xl font-bold mb-3">Publish a Tool</h1>
-        <p className="text-gray-400 leading-relaxed">
+    <main className="max-w-3xl mx-auto px-5 py-10">
+      <div className="mb-10">
+        <p className="font-mono text-[#22c55e] text-sm mb-3">~ publish</p>
+        <h1 className="text-xl font-bold font-mono text-white mb-2">Publish a Tool</h1>
+        <p className="text-[#a3a3a3] text-sm leading-relaxed">
           Share your MCP server with the community. Every tool is validated in an
-          isolated Docker sandbox before going live — no broken tools, no malicious code.
+          isolated Docker sandbox before going live.
         </p>
       </div>
 
       {/* Steps */}
-      <div className="space-y-8 mb-16">
+      <div className="space-y-6 mb-12">
         {STEPS.map((step, i) => (
-          <div key={i} className="flex gap-5">
-            <div className="shrink-0 flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">
-                {i + 1}
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className="w-px flex-1 bg-[var(--border)] mt-2" />
-              )}
+          <div key={i}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-[11px] text-[#525252]">{i + 1}.</span>
+              <span className="font-mono text-[12px] text-[#a3a3a3]">{step.label}</span>
             </div>
-            <div className="flex-1 pb-8">
-              <h3 className="font-semibold text-white text-lg mb-1">{step.title}</h3>
-              <p className="text-sm text-gray-400 mb-3">{step.description}</p>
-              <pre className="bg-[var(--surface)] border border-[var(--border)] rounded-xl px-5 py-4 font-mono text-sm text-gray-300 overflow-x-auto leading-relaxed">
-                {step.code}
-              </pre>
+            <div className="code-block rounded-lg overflow-hidden">
+              <div className="px-4 py-3 font-mono text-sm text-[#a3a3a3] whitespace-pre-wrap leading-relaxed">
+                {step.cmd}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Sandbox info */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 mb-12">
-        <h3 className="font-semibold text-white mb-1">Sandbox Validation</h3>
-        <p className="text-sm text-gray-400 mb-4">
-          Every published tool runs in an isolated Docker container. If it passes, it goes live automatically.
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {SANDBOX_FEATURES.map((f) => (
-            <div key={f.label} className="flex items-center gap-2 text-sm text-gray-300">
-              <div className="w-5 h-5 rounded bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
+      {/* Sandbox */}
+      <div className="mb-12">
+        <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">sandbox validation</h2>
+        <div className="code-block rounded-lg p-4">
+          <p className="font-mono text-sm text-[#a3a3a3] mb-3">
+            every tool runs in an isolated docker container before going live.
+          </p>
+          <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+            {[
+              "no network access",
+              "256 MB memory limit",
+              "30-second timeout",
+              "non-root execution",
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-2 text-[#a3a3a3]">
+                <span className="text-[#22c55e]">+</span>
+                {f}
               </div>
-              {f.label}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
       {/* After publish */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6 mb-12">
-        <h3 className="font-semibold text-white mb-1">After Publishing</h3>
-        <p className="text-sm text-gray-400 mb-4">
-          Track your tool and publish updates.
-        </p>
-        <div className="space-y-2 font-mono text-sm">
-          <div className="bg-gray-900/50 rounded-lg px-4 py-2.5">
-            <span className="text-gray-500"># Check sandbox status</span>
+      <div className="mb-12">
+        <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">after publishing</h2>
+        <div className="code-block rounded-lg divide-y divide-[#262626]">
+          <div className="px-4 py-3 font-mono text-sm">
+            <span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">check sandbox status</span>
             <br />
-            <span className="text-gray-300">mcp-get info my-tool</span>
+            <span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get info</span>{" "}
+            <span className="text-[#f59e0b]">my-tool</span>
           </div>
-          <div className="bg-gray-900/50 rounded-lg px-4 py-2.5">
-            <span className="text-gray-500"># Publish an update</span>
+          <div className="px-4 py-3 font-mono text-sm">
+            <span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">publish an update</span>
             <br />
-            <span className="text-gray-300">mcp-get publish ./my-tool</span>
+            <span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get publish</span>{" "}
+            <span className="text-[#f59e0b]">./my-tool</span>
           </div>
         </div>
       </div>
 
       {/* CTA */}
-      <div className="text-center py-8 border-t border-[var(--border)]">
-        <p className="text-gray-400 text-sm mb-4">Ready to publish?</p>
-        <div className="inline-flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl px-5 py-3 font-mono text-sm">
-          <span className="text-gray-500">$</span>
-          <span className="text-gray-300">npm install -g</span>
-          <span className="text-blue-400 font-medium">mcp-get</span>
+      <div className="border-t border-[#262626] pt-8 text-center">
+        <div className="code-block rounded-lg inline-block px-5 py-3 font-mono text-sm">
+          <span className="text-[#22c55e]">$</span>{" "}
+          <span className="text-[#a3a3a3]">npm install -g</span>{" "}
+          <span className="text-white">mcp-get</span>
         </div>
         <p className="mt-4">
-          <Link href="/docs" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
-            Read the full documentation →
+          <Link href="/docs" className="font-mono text-sm text-[#3b82f6] hover:underline transition-colors">
+            read the docs →
           </Link>
         </p>
       </div>

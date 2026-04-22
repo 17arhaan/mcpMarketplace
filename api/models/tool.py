@@ -5,6 +5,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Table, Text, func
+from sqlalchemy.dialects.postgresql import JSON
 
 if TYPE_CHECKING:
     from api.models.user import User
@@ -76,7 +77,7 @@ class ToolVersion(Base):
     version: Mapped[str] = mapped_column(String(20), nullable=False)
     s3_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
     checksum: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    mcp_schema: Mapped[dict | None] = mapped_column(nullable=True)
+    mcp_schema: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     sandbox_status: Mapped[SandboxStatus] = mapped_column(
         Enum(SandboxStatus, name="sandbox_status"), default=SandboxStatus.pending
     )
