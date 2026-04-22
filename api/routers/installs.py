@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from api.db import get_db
@@ -14,11 +14,33 @@ router = APIRouter(prefix="/installs", tags=["installs"])
 BATCH_FLUSH_THRESHOLD = 10
 
 
+def _optional_user(request: Request, db: Session = Depends(get_db)) -> User | None:
+    try:
+        from api.services.auth import decode_jwt, hash_api_key
+
+        api_key = request.headers.get("X-API-Key")
+        if api_key:
+            hashed = hash_api_key(api_key)
+            user = db.query(User).filter(User.api_key_hash == hashed).first()
+            if user:
+                return user
+        auth_header = request.headers.get("Authorization", "")
+        token = auth_header.removeprefix("Bearer ").strip()
+        if token:
+            payload = decode_jwt(token)
+            user = db.query(User).filter(User.id == payload["sub"]).first()
+            if user:
+                return user
+    except Exception:
+        pass
+    return None
+
+
 @router.post("", response_model=InstallOut, status_code=201)
 def log_install(
     body: InstallRequest,
     db: Session = Depends(get_db),
-    user: User | None = None,
+    user: User | None = Depends(_optional_user),
 ):
     tool = db.query(Tool).filter(Tool.id == body.tool_id, Tool.status == ToolStatus.active).first()
     if not tool:

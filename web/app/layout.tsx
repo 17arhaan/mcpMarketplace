@@ -15,44 +15,46 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MCP Marketplace — Registry for AI Agent Tools",
-    template: "%s | MCP Marketplace",
+    default: "MCP Marketplace",
+    template: "%s — MCP Marketplace",
   },
-  description:
-    "Discover, install, and publish Model Context Protocol tools. The npm for AI agent capabilities.",
-  keywords: ["MCP", "Model Context Protocol", "AI tools", "AI agents", "tool registry"],
-  openGraph: {
-    title: "MCP Marketplace",
-    description: "The npm for AI agent tools. Discover, install, and publish MCP servers.",
-    type: "website",
-  },
+  description: "Registry for Model Context Protocol tools. Discover, install, and publish MCP servers.",
+  keywords: ["MCP", "Model Context Protocol", "AI tools", "CLI", "registry"],
 };
 
 function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-xl">
-      <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">M</span>
-          </div>
-          <span className="font-semibold text-white text-sm tracking-tight">MCP Marketplace</span>
+    <header className="sticky top-0 z-50 border-b border-[#262626] bg-[#0a0a0a]/90 backdrop-blur-sm">
+      <div className="max-w-5xl mx-auto px-5 h-12 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="font-mono text-sm font-bold text-white">mcp-get</span>
+          <span className="text-[10px] font-mono text-[#525252] border border-[#262626] px-1.5 py-0.5 rounded">registry</span>
         </Link>
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-0.5 text-[13px]">
           {[
-            { href: "/", label: "Browse" },
-            { href: "/discover", label: "AI Discover" },
-            { href: "/publish", label: "Publish" },
-            { href: "/docs", label: "Docs" },
+            { href: "/", label: "explore" },
+            { href: "/discover", label: "discover" },
+            { href: "/publish", label: "publish" },
+            { href: "/docs", label: "docs" },
           ].map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="px-3 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+              className="px-2.5 py-1 rounded text-[#a3a3a3] hover:text-white font-mono transition-colors"
             >
               {link.label}
             </Link>
           ))}
+          <a
+            href="https://github.com/17arhaan/mcpMarketplace"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 text-[#525252] hover:text-white transition-colors"
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+            </svg>
+          </a>
         </nav>
       </div>
     </header>
@@ -61,40 +63,16 @@ function Navbar() {
 
 function Footer() {
   return (
-    <footer className="border-t border-[var(--border)] mt-auto">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold">M</span>
-              </div>
-              <span className="font-semibold text-white text-sm">MCP Marketplace</span>
-            </div>
-            <p className="text-sm text-gray-500 max-w-sm leading-relaxed">
-              The open registry for Model Context Protocol tools. Discover, install, and publish MCP servers that give AI agents real-world capabilities.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Product</h4>
-            <div className="flex flex-col gap-2">
-              <Link href="/" className="text-sm text-gray-500 hover:text-white transition-colors">Browse Tools</Link>
-              <Link href="/discover" className="text-sm text-gray-500 hover:text-white transition-colors">AI Discovery</Link>
-              <Link href="/publish" className="text-sm text-gray-500 hover:text-white transition-colors">Publish</Link>
-              <Link href="/docs" className="text-sm text-gray-500 hover:text-white transition-colors">Documentation</Link>
-            </div>
-          </div>
-          <div>
-            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Resources</h4>
-            <div className="flex flex-col gap-2">
-              <a href="https://github.com/17arhaan/mcpMarketplace" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-white transition-colors">GitHub</a>
-              <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-white transition-colors">MCP Specification</a>
-            </div>
-          </div>
+    <footer className="border-t border-[#262626] mt-auto">
+      <div className="max-w-5xl mx-auto px-5 py-6 flex items-center justify-between text-[11px] font-mono text-[#525252]">
+        <div className="flex items-center gap-4">
+          <span>mcp-get v0.1.0</span>
+          <span>AGPL-3.0</span>
         </div>
-        <div className="mt-8 pt-6 border-t border-[var(--border)] flex items-center justify-between">
-          <p className="text-xs text-gray-600">AGPL-3.0 License</p>
-          <p className="text-xs text-gray-600">Built by Arhaan Girdhar</p>
+        <div className="flex items-center gap-4">
+          <a href="https://github.com/17arhaan/mcpMarketplace" target="_blank" rel="noopener noreferrer" className="hover:text-[#a3a3a3] transition-colors">github</a>
+          <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="hover:text-[#a3a3a3] transition-colors">mcp spec</a>
+          <span>by arhaan</span>
         </div>
       </div>
     </footer>
@@ -111,7 +89,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-[#0a0a0a]">
         <Navbar />
         <div className="flex-1">{children}</div>
         <Footer />
