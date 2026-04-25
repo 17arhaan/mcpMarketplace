@@ -65,7 +65,7 @@ Three layers: the developer's local machine running the CLI, the hosted registry
 │  mcp.json ◀─────────────┼─────│  Install service            │────▶│  Redis                │
 │                         │     │  Auth service               │     └───────────────────────┘
 │  Tool server (local)    │     └────────────────────────────┘
-│  AI agent (Claude/etc.) │                  │                       ┌───────────────────────┐
+│  AI agent               │                  │                       ┌───────────────────────┐
 └─────────────────────────┘                  │                       │    Docker Sandbox     │
                                              └──────────────────────▶│  Tool validator       │
                                                                       └───────────────────────┘
@@ -74,9 +74,9 @@ Three layers: the developer's local machine running the CLI, the hosted registry
 ### Layer 1 — Developer machine
 
 - **mcp-get CLI:** the primary developer interface. Handles `login`, `publish`, `install`, `search`, `list` commands.
-- **mcp.json:** local config file that Claude Desktop and other MCP hosts read to discover available tool servers.
+- **mcp.json:** local config file that MCP hosts read to discover available tool servers.
 - **Tool server process:** the installed MCP tool running as a local server the AI agent connects to over stdio or HTTP.
-- **AI agent:** Claude, GPT, or any LLM runtime that supports MCP. Calls tool servers when it needs external capabilities.
+- **AI agent:** any LLM runtime that supports MCP. Calls tool servers when it needs external capabilities.
 
 ### Layer 2 — Registry API
 

@@ -30,13 +30,13 @@ mcp-get uninstall weather
 # Publish your own tool
 mcp-get publish ./my-tool
 
-# AI-powered discovery (requires ANTHROPIC_API_KEY)
+# AI-powered discovery (requires AI_API_KEY)
 mcp-get ask "I need a tool to query databases"
 ```
 
 ## Configuration
 
-Config is stored at `~/.mcp/config.json`. The CLI reads your Claude Desktop `mcp.json` to manage installed tool entries.
+Config is stored at `~/.mcp/config.json`. The CLI reads your `mcp.json` to manage installed tool entries.
 
 ## Publishing a tool
 

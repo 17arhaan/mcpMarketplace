@@ -19,8 +19,8 @@ export const askCommand = new Command("ask")
   .action(async (query: string, opts) => {
     const cliConfig = loadConfig();
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      console.error(chalk.red("ANTHROPIC_API_KEY environment variable not set."));
+    if (!process.env.AI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
+      console.error(chalk.red("AI_API_KEY environment variable not set."));
       process.exit(1);
     }
 
@@ -71,7 +71,7 @@ export const askCommand = new Command("ask")
 
     let recommendedSlug: string | null = null;
 
-    // Agentic loop — Claude searches the registry until it has enough info
+    // Agentic loop — searches the registry until it has enough info
     while (true) {
       const response = await anthropic.messages.create({
         model: "claude-opus-4-6",
