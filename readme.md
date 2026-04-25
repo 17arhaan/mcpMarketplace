@@ -83,7 +83,7 @@ mcp-get install weather
 Describe what you need in plain English — an agentic AI loop searches the registry, evaluates tools, and recommends the best fit.
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export AI_API_KEY=your-api-key
 mcp-get ask "I need to search GitHub repositories"
 ```
 

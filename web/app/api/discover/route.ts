@@ -72,11 +72,12 @@ async function executeTool(name: string, input: Record<string, string>): Promise
 export async function POST(req: NextRequest) {
   const { message } = await req.json();
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY not set" }), { status: 500 });
+  const apiKey = process.env.AI_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "AI_API_KEY not set" }), { status: 500 });
   }
 
-  const anthropic = new Anthropic();
+  const anthropic = new Anthropic({ apiKey });
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: message }];
 
   // Run agentic loop, collect final text
