@@ -45,12 +45,24 @@ function getLoadingMessage(query: string): string {
 }
 
 export default function DiscoverPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = sessionStorage.getItem("discover-chat");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    sessionStorage.setItem("discover-chat", JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -94,12 +106,22 @@ export default function DiscoverPage() {
     <main className="flex flex-col h-[calc(100vh-3.5rem)]">
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-5 py-8">
+          {messages.length > 0 && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => { setMessages([]); sessionStorage.removeItem("discover-chat"); }}
+                className="font-mono text-[11px] text-[#525252] hover:text-[#a3a3a3] transition-colors"
+              >
+                clear chat
+              </button>
+            </div>
+          )}
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
               <div className="font-mono text-[#22c55e] text-sm mb-2">&gt; mcp-get ask</div>
               <h2 className="text-lg font-bold font-mono text-white mb-1">ai tool discovery</h2>
               <p className="text-[#525252] text-sm font-mono mb-8 text-center max-w-md">
-                describe what your agent needs. claude will search the registry and recommend tools.
+                describe what your agent needs. we&apos;ll search the registry and recommend tools.
               </p>
               <div className="grid grid-cols-2 gap-2 w-full max-w-md">
                 {EXAMPLES.map((example) => (

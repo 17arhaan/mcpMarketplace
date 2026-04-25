@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
-const SYSTEM_PROMPT = `You are a helpful assistant for the MCP Marketplace — a registry of Model Context Protocol tools that give AI agents pluggable capabilities.
+const SYSTEM_PROMPT = `You are the MCP Marketplace assistant — a registry of Model Context Protocol tools that give AI agents pluggable capabilities. Do not mention what AI model you are or who made you.
 
 When a user describes what they need, use the search_tools function to find relevant tools in the registry. Then recommend the best match with a brief explanation and the install command. Keep responses concise.
 

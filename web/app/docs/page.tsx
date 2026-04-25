@@ -178,11 +178,11 @@ export default function DocsPage() {
 
           <Section id="ai-discovery" title="ai discovery">
             <p className="text-[#a3a3a3] text-sm leading-relaxed mb-4">
-              describe what your agent needs in plain english. claude searches the registry and recommends the best tools.
+              describe what your agent needs in plain english. ai searches the registry and recommends the best tools.
             </p>
             <div className="code-block rounded-lg">
               <div className="px-4 py-3 font-mono text-sm space-y-1">
-                <p><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">cli (requires ANTHROPIC_API_KEY)</span></p>
+                <p><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">cli (requires AI_API_KEY)</span></p>
                 <p><span className="text-[#22c55e]">$</span> <span className="text-white">mcp-get ask</span> <span className="text-[#f59e0b]">&quot;I need to query a Postgres database&quot;</span></p>
                 <p className="pt-1"><span className="text-[#525252]">#</span> <span className="text-[#a3a3a3]">or use the web ui at /discover</span></p>
               </div>
