@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   },
   description: "Registry for Model Context Protocol tools. Discover, install, and publish MCP servers.",
   keywords: ["MCP", "Model Context Protocol", "AI tools", "CLI", "registry"],
+  icons: {
+    icon: "/mcpFavicon.png",
+  },
 };
 
 function Navbar() {
