@@ -257,14 +257,20 @@ def seed_tool(
     except json.JSONDecodeError:
         schema = {}
     tool = Tool(
-        author_id=user.id, name=name, slug=slug,
-        description=description, status=ToolStatus.active, latest_version=version,
+        author_id=user.id,
+        name=name,
+        slug=slug,
+        description=description,
+        status=ToolStatus.active,
+        latest_version=version,
     )
     db.add(tool)
     db.flush()
     tv = ToolVersion(
-        tool_id=tool.id, version=version,
-        mcp_schema=schema, sandbox_status=SandboxStatus.passed,
+        tool_id=tool.id,
+        version=version,
+        mcp_schema=schema,
+        sandbox_status=SandboxStatus.passed,
     )
     db.add(tv)
     db.commit()
