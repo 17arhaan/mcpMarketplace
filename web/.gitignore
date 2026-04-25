@@ -1,1 +1,3 @@
 # Covered by root .gitignore
+.vercel
+.env*
