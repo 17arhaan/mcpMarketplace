@@ -23,6 +23,250 @@ interface Tool {
   versions: ToolVersion[];
 }
 
+interface ToolContent {
+  features: string[];
+  flowchart: string;
+  usage: string;
+}
+
+const TOOL_CONTENT: Record<string, ToolContent> = {
+  calculator: {
+    features: [
+      "Evaluate arithmetic, algebra, and scientific expressions",
+      "Built-in functions: sqrt, pow, log, sin, cos, tan",
+      "Constants: pi, e, inf",
+      "Sandboxed execution — no arbitrary code runs",
+      "Returns numeric results with full precision",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  calculator       │────▶│  Result     │",
+      "│              │     │                   │     │             │",
+      "│  \"what is    │     │  parse expression │     │  42.0       │",
+      "│   6 * 7?\"   │     │  validate safety  │     │             │",
+      "│              │     │  evaluate         │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install calculator
+
+# in your mcp.json
+{
+  "mcpServers": {
+    "calculator": {
+      "command": "python",
+      "args": ["~/.mcp/tools/calculator/server.py"]
+    }
+  }
+}
+
+# agent can now call:
+tools/call → calculate({ "expression": "sqrt(144) + pi" })
+→ 15.141592653589793`,
+  },
+  "web-fetch": {
+    features: [
+      "Fetch any HTTP/HTTPS URL",
+      "Extracts clean plain text from HTML pages",
+      "Strips scripts, styles, and navigation",
+      "Handles redirects and content encoding",
+      "Configurable timeout and max response size",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  web-fetch        │────▶│  Plain Text │",
+      "│              │     │                   │     │             │",
+      "│  \"read this  │     │  HTTP request     │     │  extracted  │",
+      "│   docs page\" │     │  parse HTML       │     │  content    │",
+      "│              │     │  extract text     │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+      "",
+      "         request          fetch & parse        clean output",
+    ].join("\n"),
+    usage: `$ mcp-get install web-fetch
+
+# agent can now call:
+tools/call → fetch_url({ "url": "https://docs.example.com/api" })
+→ "API Reference\\n\\nGET /users — List all users..."`,
+  },
+  "github-search": {
+    features: [
+      "Search repositories by name, topic, or language",
+      "Search code across all public repositories",
+      "Filter by stars, forks, and last updated",
+      "Returns structured metadata: description, stars, URL",
+      "Uses GitHub public API — no auth required for basic search",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  github-search    │────▶│  Results    │",
+      "│              │     │                   │     │             │",
+      "│  \"find react │     │  search_repos     │     │  repo list  │",
+      "│   ui libs\"   │     │  search_code      │     │  with stars │",
+      "│              │     │  ↓                │     │  and URLs   │",
+      "│              │     │  GitHub REST API  │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install github-search
+
+# agent can now call:
+tools/call → search_repos({ "query": "mcp server language:python" })
+→ [{ "name": "...", "stars": 120, "url": "..." }, ...]
+
+tools/call → search_code({ "query": "def handle_tool_call" })
+→ [{ "path": "server.py", "repo": "...", "snippet": "..." }, ...]`,
+  },
+  "postgres-query": {
+    features: [
+      "Run read-only SQL queries against PostgreSQL",
+      "Parameterized queries to prevent SQL injection",
+      "Configurable result size limits",
+      "Returns structured rows as JSON",
+      "Connection string via environment variable",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  postgres-query   │────▶│  JSON Rows  │",
+      "│              │     │                   │     │             │",
+      "│  \"how many   │     │  validate SQL     │     │  [{ count:  │",
+      "│   users?\"    │     │  parameterize     │     │    1042 }]  │",
+      "│              │     │  execute (RO)     │     │             │",
+      "│              │     │  ↓                │     │             │",
+      "│              │     │  PostgreSQL DB    │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install postgres-query
+
+# set connection string
+export PG_CONNECTION="postgresql://user:pass@host:5432/db"
+
+# agent can now call:
+tools/call → query({
+  "sql": "SELECT count(*) FROM users WHERE created_at > $1",
+  "params": ["2026-01-01"]
+})
+→ [{ "count": 1042 }]`,
+  },
+  weather: {
+    features: [
+      "Current weather for any city worldwide",
+      "Temperature in Celsius and Fahrenheit",
+      "Humidity, wind speed, and conditions",
+      "Multi-day forecast support",
+      "Geocoding built-in — just pass a city name",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  weather          │────▶│  Weather    │",
+      "│              │     │                   │     │  Data       │",
+      "│  \"weather in │     │  geocode city     │     │             │",
+      "│   tokyo?\"    │     │  fetch forecast   │     │  22°C ☀     │",
+      "│              │     │  parse response   │     │  humidity:  │",
+      "│              │     │  ↓                │     │  65%        │",
+      "│              │     │  Weather API      │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install weather
+
+# agent can now call:
+tools/call → get_weather({ "city": "Tokyo" })
+→ { "temp_c": 22, "temp_f": 72, "condition": "Clear",
+     "humidity": 65, "wind_kph": 12 }`,
+  },
+  filesystem: {
+    features: [
+      "Read and write files with configurable root directory",
+      "List directory contents with metadata",
+      "Search files by name pattern or content",
+      "Create and delete files and directories",
+      "Sandboxed — cannot access outside root path",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  filesystem       │────▶│  File Data  │",
+      "│              │     │                   │     │             │",
+      "│  \"read the   │     │  validate path    │     │  contents   │",
+      "│   config\"    │     │  check sandbox    │     │  or listing │",
+      "│              │     │  read / write     │     │  or status  │",
+      "│              │     │  ↓                │     │             │",
+      "│              │     │  Local Filesystem │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install filesystem
+
+# configure root directory
+export FS_ROOT="./project"
+
+# agent can now call:
+tools/call → read_file({ "path": "src/index.ts" })
+→ "import express from 'express'..."
+
+tools/call → list_directory({ "path": "src" })
+→ [{ "name": "index.ts", "size": 1240, "type": "file" }, ...]`,
+  },
+  slack: {
+    features: [
+      "Send messages to any channel or DM",
+      "Read recent messages from channels",
+      "Thread replies and reactions",
+      "File and snippet uploads",
+      "Bot token authentication via env variable",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  slack            │────▶│  Slack API  │",
+      "│              │     │                   │     │             │",
+      "│  \"post the   │     │  format message   │     │  #general   │",
+      "│   summary\"   │     │  resolve channel  │     │  message    │",
+      "│              │     │  send via API     │     │  posted ✓   │",
+      "│              │     │  ↓                │     │             │",
+      "│              │     │  Slack Web API    │     │             │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install slack
+
+# set bot token
+export SLACK_BOT_TOKEN="xoxb-..."
+
+# agent can now call:
+tools/call → send_message({
+  "channel": "#general",
+  "text": "Deploy complete — all tests passing."
+})
+→ { "ok": true, "ts": "1234567890.123456" }`,
+  },
+  redis: {
+    features: [
+      "Get, set, and delete keys",
+      "TTL support for expiring keys",
+      "List, set, and hash operations",
+      "Pub/sub for real-time messaging",
+      "Connection via REDIS_URL environment variable",
+    ],
+    flowchart: [
+      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
+      "│  AI Agent    │────▶│  redis            │────▶│  Redis DB   │",
+      "│              │     │                   │     │             │",
+      "│  \"cache this │     │  parse command    │     │  SET key    │",
+      "│   result\"    │     │  validate args    │     │  → OK       │",
+      "│              │     │  execute          │     │             │",
+      "│              │     │  ↓                │     │  GET key    │",
+      "│              │     │  Redis Server     │     │  → value    │",
+      "└─────────────┘     └──────────────────┘     └─────────────┘",
+    ].join("\n"),
+    usage: `$ mcp-get install redis
+
+# set connection
+export REDIS_URL="redis://localhost:6379"
+
+# agent can now call:
+tools/call → set({ "key": "user:1:name", "value": "Arhaan", "ttl": 3600 })
+→ "OK"
+
+tools/call → get({ "key": "user:1:name" })
+→ "Arhaan"`,
+  },
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function getTool(slug: string): Promise<Tool | null> {
@@ -65,6 +309,8 @@ export default async function ToolPage({
   const tool = await getTool(slug);
   if (!tool) notFound();
 
+  const content = TOOL_CONTENT[tool.slug];
+
   return (
     <main className="max-w-5xl mx-auto px-5 py-10">
       {/* Breadcrumb */}
@@ -106,6 +352,57 @@ export default async function ToolPage({
               <span className="text-[#f59e0b]">{tool.slug}</span>
             </div>
           </div>
+
+          {/* Features */}
+          {content && (
+            <div className="mb-8">
+              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">features</h2>
+              <div className="code-block rounded-lg divide-y divide-[#262626]">
+                {content.features.map((f, i) => (
+                  <div key={i} className="flex items-center gap-3 px-4 py-2.5 font-mono text-sm text-[#a3a3a3]">
+                    <span className="text-[#22c55e]">+</span>
+                    {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* How it works — flowchart */}
+          {content && (
+            <div className="mb-8">
+              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">how it works</h2>
+              <div className="code-block rounded-lg overflow-x-auto">
+                <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[#262626]">
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <span className="ml-2 text-[10px] text-[#525252]">data flow</span>
+                </div>
+                <pre className="px-4 py-4 font-mono text-xs text-[#a3a3a3] leading-relaxed whitespace-pre">
+                  {content.flowchart}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {/* Usage example */}
+          {content && (
+            <div className="mb-8">
+              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">usage</h2>
+              <div className="code-block rounded-lg overflow-x-auto">
+                <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[#262626]">
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <div className="w-2 h-2 rounded-full bg-[#525252]" />
+                  <span className="ml-2 text-[10px] text-[#525252]">terminal</span>
+                </div>
+                <pre className="px-4 py-4 font-mono text-xs text-[#a3a3a3] leading-relaxed whitespace-pre">
+                  {content.usage}
+                </pre>
+              </div>
+            </div>
+          )}
 
           {/* Versions */}
           <div>
@@ -185,6 +482,15 @@ export default async function ToolPage({
               <p className="text-white">npm i -g mcp-get</p>
               <p className="mt-2"><span className="text-[#525252]">#</span> install this package</p>
               <p className="text-white">mcp-get install {tool.slug}</p>
+            </div>
+          </div>
+
+          <div className="code-block rounded-lg p-4">
+            <h3 className="font-mono text-[11px] text-[#525252] uppercase tracking-wider mb-3">protocol</h3>
+            <div className="font-mono text-xs text-[#a3a3a3] space-y-1">
+              <p><span className="text-[#525252]">transport</span> stdio</p>
+              <p><span className="text-[#525252]">format</span> JSON-RPC 2.0</p>
+              <p><span className="text-[#525252]">spec</span> <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline">modelcontextprotocol.io</a></p>
             </div>
           </div>
         </div>
