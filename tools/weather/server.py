@@ -2,6 +2,7 @@
 Minimal MCP server — weather tool using Open-Meteo (no API key needed).
 Communicates over stdio using the MCP JSON-RPC protocol.
 """
+
 import json
 import sys
 import urllib.request
@@ -53,11 +54,15 @@ def handle(request: dict) -> dict:
     req_id = request.get("id")
 
     if method == "initialize":
-        return {"jsonrpc": "2.0", "id": req_id, "result": {
-            "protocolVersion": "2024-11-05",
-            "serverInfo": {"name": "weather", "version": "1.0.0"},
-            "capabilities": {"tools": {}},
-        }}
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {
+                "protocolVersion": "2024-11-05",
+                "serverInfo": {"name": "weather", "version": "1.0.0"},
+                "capabilities": {"tools": {}},
+            },
+        }
 
     if method == "tools/list":
         return {"jsonrpc": "2.0", "id": req_id, "result": {"tools": TOOLS}}
@@ -69,13 +74,25 @@ def handle(request: dict) -> dict:
         if name == "get_weather":
             try:
                 result = get_weather(args["city"])
-                return {"jsonrpc": "2.0", "id": req_id, "result": {
-                    "content": [{"type": "text", "text": json.dumps(result)}]
-                }}
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "result": {
+                        "content": [{"type": "text", "text": json.dumps(result)}]
+                    },
+                }
             except Exception as e:
-                return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32000, "message": str(e)}}
+                return {
+                    "jsonrpc": "2.0",
+                    "id": req_id,
+                    "error": {"code": -32000, "message": str(e)},
+                }
 
-    return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": "Method not found"}}
+    return {
+        "jsonrpc": "2.0",
+        "id": req_id,
+        "error": {"code": -32601, "message": "Method not found"},
+    }
 
 
 def main():

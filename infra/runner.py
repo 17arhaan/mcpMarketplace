@@ -4,6 +4,7 @@ Extracts the tarball, installs deps, starts the MCP server,
 calls each declared tool with synthetic input, validates responses.
 Prints SANDBOX_PASS or SANDBOX_FAIL as the last line.
 """
+
 import json
 import os
 import subprocess
@@ -40,21 +41,32 @@ def main():
         sys.exit(1)
 
     # Install dependencies
-    if entry.endswith(".js") and os.path.exists(os.path.join(workspace, "package.json")):
-        r = subprocess.run(["npm", "install", "--prefix", workspace], capture_output=True, timeout=25)
+    if entry.endswith(".js") and os.path.exists(
+        os.path.join(workspace, "package.json")
+    ):
+        r = subprocess.run(
+            ["npm", "install", "--prefix", workspace], capture_output=True, timeout=25
+        )
         if r.returncode != 0:
             print(f"SANDBOX_FAIL: npm install failed: {r.stderr.decode()[:500]}")
             sys.exit(1)
-    elif entry.endswith(".py") and os.path.exists(os.path.join(workspace, "requirements.txt")):
-        r = subprocess.run(["pip", "install", "-r", os.path.join(workspace, "requirements.txt")],
-                           capture_output=True, timeout=25)
+    elif entry.endswith(".py") and os.path.exists(
+        os.path.join(workspace, "requirements.txt")
+    ):
+        r = subprocess.run(
+            ["pip", "install", "-r", os.path.join(workspace, "requirements.txt")],
+            capture_output=True,
+            timeout=25,
+        )
         if r.returncode != 0:
             print(f"SANDBOX_FAIL: pip install failed: {r.stderr.decode()[:500]}")
             sys.exit(1)
 
     # Basic validation: ensure the entry file is syntactically valid
     if entry.endswith(".py"):
-        r = subprocess.run(["python", "-m", "py_compile", entry_path], capture_output=True)
+        r = subprocess.run(
+            ["python", "-m", "py_compile", entry_path], capture_output=True
+        )
         if r.returncode != 0:
             print(f"SANDBOX_FAIL: syntax error: {r.stderr.decode()[:500]}")
             sys.exit(1)
