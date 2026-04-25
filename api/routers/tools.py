@@ -240,6 +240,39 @@ async def publish_version(
     return {"message": f"Version {version} submitted for validation"}
 
 
+@router.post("/seed", response_model=ToolDetail, status_code=201)
+def seed_tool(
+    name: str = Form(...),
+    slug: str = Form(...),
+    description: str = Form(...),
+    version: str = Form("1.0.0"),
+    mcp_schema: str = Form("{}"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if db.query(Tool).filter(Tool.slug == slug).first():
+        raise HTTPException(status_code=409, detail="Slug already taken")
+    try:
+        schema = json.loads(mcp_schema)
+    except json.JSONDecodeError:
+        schema = {}
+    tool = Tool(
+        author_id=user.id, name=name, slug=slug,
+        description=description, status=ToolStatus.active, latest_version=version,
+    )
+    db.add(tool)
+    db.flush()
+    tv = ToolVersion(
+        tool_id=tool.id, version=version,
+        mcp_schema=schema, sandbox_status=SandboxStatus.passed,
+    )
+    db.add(tv)
+    db.commit()
+    db.refresh(tool)
+    cache_delete_pattern("tools:search:*")
+    return tool
+
+
 @router.delete("/{slug}", status_code=204)
 def deprecate_tool(slug: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     tool = db.query(Tool).filter(Tool.slug == slug, Tool.author_id == user.id).first()
