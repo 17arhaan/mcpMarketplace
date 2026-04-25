@@ -92,6 +92,11 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="icon" href="/mcpFavicon.png" />
+        <link rel="shortcut icon" href="/mcpFavicon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/mcpFavicon.png" />
+      </head>
       <body className="min-h-full flex flex-col bg-[#0a0a0a]">
         <Navbar />
         <div className="flex-1">{children}</div>
