@@ -45,3 +45,9 @@ body {
   border: 1px solid var(--border);
   font-family: var(--font-geist-mono), monospace;
 }
+
+.prose-mono {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
