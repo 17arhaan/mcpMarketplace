@@ -72,7 +72,7 @@ function Footer() {
         <div className="flex items-center gap-4">
           <a href="https://github.com/17arhaan/mcpMarketplace" target="_blank" rel="noopener noreferrer" className="hover:text-[#a3a3a3] transition-colors">github</a>
           <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" className="hover:text-[#a3a3a3] transition-colors">mcp spec</a>
-          <span>by arhaan</span>
+          <a href="https://www.arhaanportfolio.in" target="_blank" rel="noopener noreferrer" className="hover:text-[#a3a3a3] transition-colors">by arhaan</a>
         </div>
       </div>
     </footer>

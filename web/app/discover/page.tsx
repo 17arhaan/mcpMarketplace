@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -16,10 +17,38 @@ const EXAMPLES = [
   "Help me find file system tools",
 ];
 
+const LOADING_MESSAGES = [
+  "searching the registry...",
+  "scanning available tools...",
+  "looking through packages...",
+  "finding matching tools...",
+  "checking the marketplace...",
+  "browsing the catalog...",
+  "querying the index...",
+  "digging through packages...",
+];
+
+function getLoadingMessage(query: string): string {
+  const q = query.toLowerCase();
+  if (q.includes("database") || q.includes("sql") || q.includes("postgres")) return "searching for database tools...";
+  if (q.includes("web") || q.includes("fetch") || q.includes("scrape") || q.includes("http")) return "looking for web tools...";
+  if (q.includes("file") || q.includes("filesystem") || q.includes("directory")) return "scanning filesystem tools...";
+  if (q.includes("github") || q.includes("git") || q.includes("repo")) return "searching git & github tools...";
+  if (q.includes("weather") || q.includes("climate")) return "checking for weather tools...";
+  if (q.includes("math") || q.includes("calcul") || q.includes("compute")) return "finding math tools...";
+  if (q.includes("api") || q.includes("rest") || q.includes("graphql")) return "browsing API tools...";
+  if (q.includes("ai") || q.includes("llm") || q.includes("model")) return "searching AI tools...";
+  if (q.includes("image") || q.includes("photo") || q.includes("visual")) return "looking for image tools...";
+  if (q.includes("email") || q.includes("mail") || q.includes("message")) return "finding communication tools...";
+  if (q.includes("search") || q.includes("find") || q.includes("discover")) return "querying the registry...";
+  return LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
+}
+
 export default function DiscoverPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -36,6 +65,7 @@ export default function DiscoverPage() {
     const userMessage = text.trim();
     setInput("");
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    setLoadingMsg(getLoadingMessage(userMessage));
     setLoading(true);
 
     try {
@@ -93,8 +123,24 @@ export default function DiscoverPage() {
                       <span className="text-white">{msg.content}</span>
                     </div>
                   ) : (
-                    <div className="code-block rounded-md px-4 py-3 text-[#a3a3a3] whitespace-pre-wrap leading-relaxed">
-                      {msg.content}
+                    <div className="code-block rounded-md px-4 py-3 text-[#a3a3a3] leading-relaxed prose-mono">
+                      <ReactMarkdown
+                        components={{
+                          strong: ({ children }) => <span className="text-white font-bold">{children}</span>,
+                          em: ({ children }) => <span className="text-[#f59e0b] italic">{children}</span>,
+                          code: ({ children }) => <code className="text-[#22c55e] bg-[#1a1a1a] px-1 py-0.5 rounded text-xs">{children}</code>,
+                          ul: ({ children }) => <ul className="list-none space-y-1 mt-2">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mt-2">{children}</ol>,
+                          li: ({ children }) => <li className="flex gap-2"><span className="text-[#22c55e] shrink-0">-</span><span>{children}</span></li>,
+                          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                          h1: ({ children }) => <p className="text-white font-bold text-base mb-2">{children}</p>,
+                          h2: ({ children }) => <p className="text-white font-bold text-sm mb-2 mt-3">{children}</p>,
+                          h3: ({ children }) => <p className="text-white font-bold text-sm mb-1 mt-2">{children}</p>,
+                          a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline">{children}</a>,
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   )}
                 </div>
@@ -102,7 +148,7 @@ export default function DiscoverPage() {
 
               {loading && (
                 <div className="code-block rounded-md px-4 py-3">
-                  <span className="text-[#525252] font-mono text-sm animate-pulse">searching registry...</span>
+                  <span className="text-[#525252] font-mono text-sm animate-pulse">{loadingMsg}</span>
                 </div>
               )}
             </div>
@@ -138,9 +184,6 @@ export default function DiscoverPage() {
             ask
           </button>
         </form>
-        <p className="text-center text-[10px] font-mono text-[#525252] mt-2">
-          powered by claude — requires ANTHROPIC_API_KEY
-        </p>
       </div>
     </main>
   );
