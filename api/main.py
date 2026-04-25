@@ -24,11 +24,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://mcpmarketplace-six.vercel.app",
-    ],
+    allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:(3000|3001)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
