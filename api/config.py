@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
+
+# Always load from api/.env regardless of working directory
+_ENV_FILE = Path(__file__).parent / ".env"
 
 
 class Settings(BaseSettings):
@@ -16,7 +21,7 @@ class Settings(BaseSettings):
     supabase_s3_secret_key: str = ""
 
     class Config:
-        env_file = ".env"
+        env_file = str(_ENV_FILE)
 
 
 settings = Settings()

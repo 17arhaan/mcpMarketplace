@@ -32,6 +32,8 @@ class ToolOut(BaseModel):
 
 class ToolDetail(ToolOut):
     versions: list[ToolVersionOut] = []
+    author_username: str | None = None
+    author_email: str | None = None
 
 
 class ToolCreate(BaseModel):

@@ -15,6 +15,7 @@ function toSlug(name: string): string {
 export function PublishForm() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [username, setUsernameState] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [version, setVersion] = useState("1.0.0");
@@ -29,14 +30,32 @@ export function PublishForm() {
     import("../lib/supabase").then(({ supabase }) => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setLoggedIn(!!session);
-        if (session) setUsernameState(getUsername());
+        if (session) {
+          setUsernameState(getUsername());
+          fetchUserInfo();
+        }
       });
       supabase.auth.onAuthStateChange((_e, s) => {
         setLoggedIn(!!s);
-        if (s) setUsernameState(getUsername());
+        if (s) { setUsernameState(getUsername()); fetchUserInfo(); }
       });
     });
   }, []);
+
+  async function fetchUserInfo() {
+    const token = await getFreshToken();
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsernameState(data.username);
+        setEmail(data.email);
+      }
+    } catch {}
+  }
 
   useEffect(() => {
     setSlug(toSlug(name));
@@ -182,9 +201,15 @@ export function PublishForm() {
       </div>
       {error && <p className="font-mono text-sm text-red-400">{error}</p>}
       {username && (
-        <p className="font-mono text-[12px] text-[#525252]">
-          publishing as <span className="font-bold text-[#eab308]">@{username}</span>
-        </p>
+        <div className="code-block rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[12px] text-[#525252]">publishing as</span>
+            <span className="font-mono text-sm font-bold text-[#eab308]">@{username}</span>
+          </div>
+          {email && (
+            <span className="font-mono text-[12px] text-[#525252]">{email}</span>
+          )}
+        </div>
       )}
       <button
         type="submit"

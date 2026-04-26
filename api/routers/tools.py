@@ -108,7 +108,12 @@ def get_tool(slug: str, db: Session = Depends(get_db)):
     tool = db.query(Tool).filter(Tool.slug == slug).first()
     if not tool:
         raise HTTPException(status_code=404, detail="Tool not found")
-    return tool
+    author = db.query(User).filter(User.id == tool.author_id).first()
+    result = ToolDetail.model_validate(tool)
+    if author:
+        result.author_username = author.username
+        result.author_email = author.email
+    return result
 
 
 @router.get("/{slug}/latest")

@@ -23,6 +23,8 @@ interface Tool {
   status: string;
   created_at: string;
   versions: ToolVersion[];
+  author_username: string | null;
+  author_email: string | null;
 }
 
 interface ToolContent {
@@ -392,9 +394,7 @@ export default async function ToolPage({
                   <div className="w-2 h-2 rounded-full bg-[#525252]" />
                   <span className="ml-2 text-[10px] text-[#525252]">data flow</span>
                 </div>
-                <pre className="px-4 py-4 font-mono text-xs text-[#a3a3a3] leading-relaxed whitespace-pre">
-                  {content.flowchart}
-                </pre>
+                <pre className="px-4 py-4 font-mono text-xs text-[#a3a3a3] leading-none whitespace-pre overflow-x-auto">{content.flowchart}</pre>
               </div>
             </div>
           )}
@@ -489,6 +489,31 @@ export default async function ToolPage({
               </div>
             </dl>
           </div>
+
+          {(tool.author_username || tool.author_email) && (
+            <div className="code-block rounded-lg p-4">
+              <h3 className="font-mono text-[11px] text-[#525252] uppercase tracking-wider mb-3">author</h3>
+              <div className="space-y-2 font-mono text-sm">
+                {tool.author_username && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#525252]">handle</span>
+                    <span className="font-bold text-[#eab308]">@{tool.author_username}</span>
+                  </div>
+                )}
+                {tool.author_email && (
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="text-[#525252]">contact</span>
+                    <a
+                      href={`mailto:${tool.author_email}`}
+                      className="text-[#3b82f6] hover:underline text-xs truncate"
+                    >
+                      {tool.author_email}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="code-block rounded-lg p-4">
             <h3 className="font-mono text-[11px] text-[#525252] uppercase tracking-wider mb-3">quick start</h3>
