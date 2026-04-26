@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { RequireAuth } from "../components/require-auth";
-import { getToken } from "../lib/auth";
+import { getFreshToken } from "../lib/auth";
 
 interface Message {
   role: "user" | "assistant";
@@ -83,7 +83,7 @@ function DiscoverChat() {
     setLoading(true);
 
     try {
-      const token = getToken();
+      const token = await getFreshToken();
       const res = await fetch("/api/discover", {
         method: "POST",
         headers: {
