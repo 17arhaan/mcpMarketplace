@@ -11,7 +11,7 @@ export interface CliConfig {
 }
 
 const DEFAULTS: CliConfig = {
-  apiUrl: "http://localhost:8000",
+  apiUrl: "https://mcpmarketplace-production.up.railway.app",
 };
 
 export function loadConfig(): CliConfig {
