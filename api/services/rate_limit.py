@@ -1,7 +1,8 @@
 import time
 
-from api.services.cache import get_redis
 from fastapi import HTTPException
+
+from api.services.cache import get_redis
 
 
 def check_rate_limit(key: str, max_requests: int, window_seconds: int) -> None:

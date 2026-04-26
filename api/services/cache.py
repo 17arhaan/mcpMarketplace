@@ -2,6 +2,7 @@ import json
 import logging
 
 import redis
+
 from api.config import settings
 
 logger = logging.getLogger(__name__)

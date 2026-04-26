@@ -3,8 +3,9 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from api.config import settings
 from jose import jwt
+
+from api.config import settings
 
 
 def hash_password(password: str) -> str:

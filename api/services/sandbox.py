@@ -4,8 +4,9 @@ import tempfile
 from dataclasses import dataclass
 
 import docker
-from api.services.storage import download_to_dir
 from docker.errors import ContainerError, ImageNotFound
+
+from api.services.storage import download_to_dir
 
 logger = logging.getLogger(__name__)
 
