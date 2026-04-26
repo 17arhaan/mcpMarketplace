@@ -1,9 +1,6 @@
 # MCP Marketplace
 
 > The registry for [Model Context Protocol](https://modelcontextprotocol.io) tools — discover, publish, and install MCP servers that give your AI agents real capabilities.
-
-**[mcpmarketplace-six.vercel.app](https://mcpmarketplace-six.vercel.app)**
-
 ---
 
 ## What it is
