@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from api.config import settings
 from api.db import get_db
 from api.dependencies import get_current_user
 from api.models.user import User
-from api.config import settings
 from api.schemas.auth import ApiKeyResponse, LoginRequest, LoginResponse, RegisterRequest, SupabaseExchangeRequest, UserProfile
 from api.services.auth import create_jwt, generate_api_key, hash_password, verify_password
 

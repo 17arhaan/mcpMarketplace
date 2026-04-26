@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from api.config import settings
 from api.db import Base
-from api.models import install, rating, tool, user  # noqa: F401 — register all models
+from api.models import install, rating, tool, user  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
