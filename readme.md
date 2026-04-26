@@ -62,7 +62,7 @@ mcp-get ask "Find me a tool to search GitHub repos"
 mcp-get ask "What tools can fetch web pages?"
 ```
 
-Also available at [/discover](https://mcpmarketplace-six.vercel.app/discover) — requires login.
+Also available at [/discover](https://mcpmarketplace.online/discover) — requires login.
 
 Powered by Claude with tool-use — searches the live registry, evaluates options, and recommends the best match with an install command.
 
@@ -85,7 +85,7 @@ Powered by Claude with tool-use — searches the live registry, evaluates option
 mcp-get publish ./my-tool
 ```
 
-Or publish directly from the browser at [/publish](https://mcpmarketplace-six.vercel.app/publish).
+Or publish directly from the browser at [/publish](https://mcpmarketplace.online/publish).
 
 Every submission goes through an isolated Docker sandbox. Status is visible via `mcp-get info <slug>`.
 

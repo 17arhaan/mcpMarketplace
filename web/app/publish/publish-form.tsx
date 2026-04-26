@@ -98,7 +98,7 @@ export function PublishForm() {
     setError("");
 
     if (!tarball) {
-      setError("select a tarball (.tar.gz)");
+      setError("select an archive (.tar.gz, .tgz, or .zip)");
       return;
     }
     try {
@@ -174,14 +174,22 @@ export function PublishForm() {
           />
         </div>
         <div>
-          <label className="block font-mono text-[12px] text-[#525252] mb-1">tarball (.tar.gz)</label>
-          <input
-            required
-            type="file"
-            accept=".tar.gz,.tgz"
-            onChange={(e) => setTarball(e.target.files?.[0] ?? null)}
-            className="w-full bg-[#141414] border border-[#262626] rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-[#333] font-mono"
-          />
+          <label className="block font-mono text-[12px] text-[#525252] mb-1">archive (.tar.gz / .tgz / .zip)</label>
+          <label className="group flex items-center gap-3 w-full bg-[#141414] border border-[#262626] hover:border-[#333] rounded-md px-3 py-2 text-sm cursor-pointer font-mono transition-colors">
+            <input
+              required
+              type="file"
+              accept=".tar.gz,.tgz,.zip,application/gzip,application/zip,application/x-tar,application/x-gzip"
+              onChange={(e) => setTarball(e.target.files?.[0] ?? null)}
+              className="hidden"
+            />
+            <span className="px-2 py-0.5 rounded border border-[#333] text-[#a3a3a3] text-[12px] group-hover:border-[#525252]">
+              choose file
+            </span>
+            <span className={tarball ? "text-white truncate" : "text-[#525252]"}>
+              {tarball ? tarball.name : "no file chosen"}
+            </span>
+          </label>
         </div>
       </div>
       <div>
