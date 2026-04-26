@@ -32,7 +32,9 @@ class Tag(Base):
 
 class ToolStatus(str, enum.Enum):
     draft = "draft"
+    pending_review = "pending_review"
     active = "active"
+    rejected = "rejected"
     deprecated = "deprecated"
     removed = "removed"
 

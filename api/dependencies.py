@@ -32,3 +32,9 @@ def _make_auth_dependency():
 
 
 get_current_user = _make_auth_dependency()
+
+
+def require_admin(user: User = Depends(get_current_user)) -> User:
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user

@@ -14,12 +14,18 @@ from api.schemas.auth import (
     UserProfile,
 )
 from api.services.auth import create_jwt, generate_api_key, hash_password, verify_password
+from api.services.moderation import ModerationError, check_username
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserProfile, status_code=201)
 def register(body: RegisterRequest, db: Session = Depends(get_db)):
+    try:
+        check_username(body.username)
+    except ModerationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
     if db.query(User).filter(User.email == body.email).first():
         raise HTTPException(status_code=409, detail="Email already registered")
     if db.query(User).filter(User.username == body.username).first():
@@ -51,6 +57,23 @@ def me(user: User = Depends(get_current_user)):
     return user
 
 
+@router.get("/me/tools")
+def my_tools(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from api.models.tool import Tool
+
+    tools = db.query(Tool).filter(Tool.author_id == user.id).order_by(Tool.created_at.desc()).all()
+    return [
+        {
+            "slug": t.slug,
+            "name": t.name,
+            "status": t.status.value if hasattr(t.status, "value") else t.status,
+            "latest_version": t.latest_version,
+            "created_at": t.created_at,
+        }
+        for t in tools
+    ]
+
+
 @router.post("/api-key", response_model=ApiKeyResponse)
 def create_api_key(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     raw, hashed = generate_api_key()
@@ -70,15 +93,32 @@ def supabase_exchange(body: SupabaseExchangeRequest, db: Session = Depends(get_d
     if not settings.supabase_jwt_secret:
         raise HTTPException(status_code=503, detail="Supabase auth not configured")
 
-    try:
-        from jose import jwt as jose_jwt
+    import jwt as pyjwt
+    from jwt import PyJWKClient
 
-        payload = jose_jwt.decode(
-            body.access_token,
-            settings.supabase_jwt_secret,
-            algorithms=["HS256"],
-            options={"verify_aud": False},
-        )
+    try:
+        header = pyjwt.get_unverified_header(body.access_token)
+        alg = header.get("alg", "HS256")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Bad token header: {e}")
+
+    try:
+        if alg.startswith(("ES", "RS")):
+            jwks_url = f"{settings.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json"
+            signing_key = PyJWKClient(jwks_url).get_signing_key_from_jwt(body.access_token).key
+            payload = pyjwt.decode(
+                body.access_token,
+                signing_key,
+                algorithms=[alg],
+                options={"verify_aud": False},
+            )
+        else:
+            payload = pyjwt.decode(
+                body.access_token,
+                settings.supabase_jwt_secret,
+                algorithms=[alg],
+                options={"verify_aud": False},
+            )
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid Supabase token")
 
@@ -89,11 +129,22 @@ def supabase_exchange(body: SupabaseExchangeRequest, db: Session = Depends(get_d
     user = db.query(User).filter(User.email == email).first()
     if not user:
         meta_username = (payload.get("user_metadata") or {}).get("username", "")
+        if meta_username:
+            try:
+                check_username(meta_username)
+            except ModerationError as e:
+                raise HTTPException(status_code=422, detail=str(e))
+
         base = meta_username.lower() if meta_username else email.split("@")[0].lower()
         # strip non-alphanumeric/hyphen chars
         import re
 
         base = re.sub(r"[^a-z0-9_-]", "", base) or "user"
+        # if the email-derived base hits the moderation list, fall back to "user"
+        from api.services.moderation import is_clean
+
+        if not is_clean(base):
+            base = "user"
         username = base
         i = 1
         while db.query(User).filter(User.username == username).first():

@@ -58,3 +58,16 @@ export async function getFreshToken(): Promise<string | null> {
   if (!session) return null;
   return exchangeSupabaseToken(session.access_token);
 }
+
+/** Fetch /auth/me — returns user profile or null. */
+export async function fetchMe(): Promise<{ username: string; email: string; is_admin: boolean } | null> {
+  const token = await getFreshToken();
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}

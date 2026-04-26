@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PublishForm } from "./publish-form";
+import { MySubmissions } from "./my-submissions";
 import { RequireAuth } from "../components/require-auth";
 
 export const metadata: Metadata = {
@@ -147,10 +148,12 @@ export default function PublishPage() {
       </div>
 
       {/* Browser upload */}
-      <div className="border-t border-[#262626] pt-8">
+      <div className="border-t border-[#262626] pt-8 mb-2">
         <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-4">publish from browser</h2>
         <PublishForm />
       </div>
+
+      <MySubmissions />
     </main>
     </RequireAuth>
   );

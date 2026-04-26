@@ -33,253 +33,56 @@ interface ToolContent {
   usage: string;
 }
 
-const TOOL_CONTENT: Record<string, ToolContent> = {
-  calculator: {
-    features: [
-      "Evaluate arithmetic, algebra, and scientific expressions",
-      "Built-in functions: sqrt, pow, log, sin, cos, tan",
-      "Constants: pi, e, inf",
-      "Sandboxed execution — no arbitrary code runs",
-      "Returns numeric results with full precision",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  calculator       │────▶│  Result     │",
-      "│              │     │                   │     │             │",
-      "│  \"what is    │     │  parse expression │     │  42.0       │",
-      "│   6 * 7?\"   │     │  validate safety  │     │             │",
-      "│              │     │  evaluate         │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install calculator
-
-# in your mcp.json
-{
-  "mcpServers": {
-    "calculator": {
-      "command": "python",
-      "args": ["~/.mcp/tools/calculator/server.py"]
-    }
-  }
-}
-
-# agent can now call:
-tools/call → calculate({ "expression": "sqrt(144) + pi" })
-→ 15.141592653589793`,
-  },
-  "web-fetch": {
-    features: [
-      "Fetch any HTTP/HTTPS URL",
-      "Extracts clean plain text from HTML pages",
-      "Strips scripts, styles, and navigation",
-      "Handles redirects and content encoding",
-      "Configurable timeout and max response size",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  web-fetch        │────▶│  Plain Text │",
-      "│              │     │                   │     │             │",
-      "│  \"read this  │     │  HTTP request     │     │  extracted  │",
-      "│   docs page\" │     │  parse HTML       │     │  content    │",
-      "│              │     │  extract text     │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-      "",
-      "         request          fetch & parse        clean output",
-    ].join("\n"),
-    usage: `$ mcp-get install web-fetch
-
-# agent can now call:
-tools/call → fetch_url({ "url": "https://docs.example.com/api" })
-→ "API Reference\\n\\nGET /users — List all users..."`,
-  },
-  "github-search": {
-    features: [
-      "Search repositories by name, topic, or language",
-      "Search code across all public repositories",
-      "Filter by stars, forks, and last updated",
-      "Returns structured metadata: description, stars, URL",
-      "Uses GitHub public API — no auth required for basic search",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  github-search    │────▶│  Results    │",
-      "│              │     │                   │     │             │",
-      "│  \"find react │     │  search_repos     │     │  repo list  │",
-      "│   ui libs\"   │     │  search_code      │     │  with stars │",
-      "│              │     │  ↓                │     │  and URLs   │",
-      "│              │     │  GitHub REST API  │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install github-search
-
-# agent can now call:
-tools/call → search_repos({ "query": "mcp server language:python" })
-→ [{ "name": "...", "stars": 120, "url": "..." }, ...]
-
-tools/call → search_code({ "query": "def handle_tool_call" })
-→ [{ "path": "server.py", "repo": "...", "snippet": "..." }, ...]`,
-  },
-  "postgres-query": {
-    features: [
-      "Run read-only SQL queries against PostgreSQL",
-      "Parameterized queries to prevent SQL injection",
-      "Configurable result size limits",
-      "Returns structured rows as JSON",
-      "Connection string via environment variable",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  postgres-query   │────▶│  JSON Rows  │",
-      "│              │     │                   │     │             │",
-      "│  \"how many   │     │  validate SQL     │     │  [{ count:  │",
-      "│   users?\"    │     │  parameterize     │     │    1042 }]  │",
-      "│              │     │  execute (RO)     │     │             │",
-      "│              │     │  ↓                │     │             │",
-      "│              │     │  PostgreSQL DB    │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install postgres-query
-
-# set connection string
-export PG_CONNECTION="postgresql://user:pass@host:5432/db"
-
-# agent can now call:
-tools/call → query({
-  "sql": "SELECT count(*) FROM users WHERE created_at > $1",
-  "params": ["2026-01-01"]
-})
-→ [{ "count": 1042 }]`,
-  },
-  weather: {
-    features: [
-      "Current weather for any city worldwide",
-      "Temperature in Celsius and Fahrenheit",
-      "Humidity, wind speed, and conditions",
-      "Multi-day forecast support",
-      "Geocoding built-in — just pass a city name",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  weather          │────▶│  Weather    │",
-      "│              │     │                   │     │  Data       │",
-      "│  \"weather in │     │  geocode city     │     │             │",
-      "│   tokyo?\"    │     │  fetch forecast   │     │  22°C ☀     │",
-      "│              │     │  parse response   │     │  humidity:  │",
-      "│              │     │  ↓                │     │  65%        │",
-      "│              │     │  Weather API      │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install weather
-
-# agent can now call:
-tools/call → get_weather({ "city": "Tokyo" })
-→ { "temp_c": 22, "temp_f": 72, "condition": "Clear",
-     "humidity": 65, "wind_kph": 12 }`,
-  },
-  filesystem: {
-    features: [
-      "Read and write files with configurable root directory",
-      "List directory contents with metadata",
-      "Search files by name pattern or content",
-      "Create and delete files and directories",
-      "Sandboxed — cannot access outside root path",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  filesystem       │────▶│  File Data  │",
-      "│              │     │                   │     │             │",
-      "│  \"read the   │     │  validate path    │     │  contents   │",
-      "│   config\"    │     │  check sandbox    │     │  or listing │",
-      "│              │     │  read / write     │     │  or status  │",
-      "│              │     │  ↓                │     │             │",
-      "│              │     │  Local Filesystem │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install filesystem
-
-# configure root directory
-export FS_ROOT="./project"
-
-# agent can now call:
-tools/call → read_file({ "path": "src/index.ts" })
-→ "import express from 'express'..."
-
-tools/call → list_directory({ "path": "src" })
-→ [{ "name": "index.ts", "size": 1240, "type": "file" }, ...]`,
-  },
-  slack: {
-    features: [
-      "Send messages to any channel or DM",
-      "Read recent messages from channels",
-      "Thread replies and reactions",
-      "File and snippet uploads",
-      "Bot token authentication via env variable",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  slack            │────▶│  Slack API  │",
-      "│              │     │                   │     │             │",
-      "│  \"post the   │     │  format message   │     │  #general   │",
-      "│   summary\"   │     │  resolve channel  │     │  message    │",
-      "│              │     │  send via API     │     │  posted ✓   │",
-      "│              │     │  ↓                │     │             │",
-      "│              │     │  Slack Web API    │     │             │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install slack
-
-# set bot token
-export SLACK_BOT_TOKEN="xoxb-..."
-
-# agent can now call:
-tools/call → send_message({
-  "channel": "#general",
-  "text": "Deploy complete — all tests passing."
-})
-→ { "ok": true, "ts": "1234567890.123456" }`,
-  },
-  redis: {
-    features: [
-      "Get, set, and delete keys",
-      "TTL support for expiring keys",
-      "List, set, and hash operations",
-      "Pub/sub for real-time messaging",
-      "Connection via REDIS_URL environment variable",
-    ],
-    flowchart: [
-      "┌─────────────┐     ┌──────────────────┐     ┌─────────────┐",
-      "│  AI Agent    │────▶│  redis            │────▶│  Redis DB   │",
-      "│              │     │                   │     │             │",
-      "│  \"cache this │     │  parse command    │     │  SET key    │",
-      "│   result\"    │     │  validate args    │     │  → OK       │",
-      "│              │     │  execute          │     │             │",
-      "│              │     │  ↓                │     │  GET key    │",
-      "│              │     │  Redis Server     │     │  → value    │",
-      "└─────────────┘     └──────────────────┘     └─────────────┘",
-    ].join("\n"),
-    usage: `$ mcp-get install redis
-
-# set connection
-export REDIS_URL="redis://localhost:6379"
-
-# agent can now call:
-tools/call → set({ "key": "user:1:name", "value": "Arhaan", "ttl": 3600 })
-→ "OK"
-
-tools/call → get({ "key": "user:1:name" })
-→ "Arhaan"`,
-  },
-};
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+function buildFlowchart(slug: string, methods: string[]): string {
+  const methodList = methods.length ? methods : ["call"];
+  const left = "AI Agent";
+  const middle = slug;
+  const right = "Response";
+  const inner = (s: string, w: number) => " " + s + " ".repeat(Math.max(0, w - s.length - 2)) + " ";
+  const box = (label: string, content: string[], width: number) => {
+    const top = "┌" + "─".repeat(width - 2) + "┐";
+    const bottom = "└" + "─".repeat(width - 2) + "┘";
+    const labelLine = "│" + inner(label, width - 2) + "│";
+    const blank = "│" + " ".repeat(width - 2) + "│";
+    const contentLines = content.map((c) => "│" + inner(c, width - 2) + "│");
+    while (contentLines.length < 3) contentLines.push(blank);
+    return [top, labelLine, blank, ...contentLines.slice(0, 3), bottom];
+  };
+
+  const w1 = 16;
+  const w2 = Math.max(20, middle.length + 6, ...methodList.map((m) => m.length + 6));
+  const w3 = 16;
+  const arrow = "──▶";
+  const gap = " ".repeat(2);
+
+  const b1 = box(left, ["sends", "request"], w1);
+  const b2 = box(middle, methodList.slice(0, 3), w2);
+  const b3 = box(right, ["structured", "JSON"], w3);
+
+  const lines: string[] = [];
+  for (let i = 0; i < b1.length; i++) {
+    const a = i === 1 ? arrow : " ".repeat(arrow.length);
+    const c = i === 1 ? arrow : " ".repeat(arrow.length);
+    lines.push(b1[i] + gap + a + gap + b2[i] + gap + c + gap + b3[i]);
+  }
+  return lines.join("\n");
+}
 
 function contentFromSchema(tool: Tool): ToolContent | null {
   const v = tool.versions.find((ver) => ver.version === tool.latest_version);
   const schemaTool = v?.mcp_schema?.tools as Array<{ name: string; description?: string }> | undefined;
-  if (!schemaTool?.length) return null;
+  if (!schemaTool?.length) {
+    return {
+      features: [],
+      flowchart: buildFlowchart(tool.slug, []),
+      usage: `$ mcp-get install ${tool.slug}`,
+    };
+  }
   return {
     features: schemaTool.map((t) => `${t.name}${t.description ? ` — ${t.description}` : ""}`),
-    flowchart: "",
+    flowchart: buildFlowchart(tool.slug, schemaTool.map((t) => t.name)),
     usage: `$ mcp-get install ${tool.slug}\n\n# available tools:\n${schemaTool.map((t) => `tools/call → ${t.name}({...})`).join("\n")}`,
   };
 }
@@ -324,7 +127,7 @@ export default async function ToolPage({
   const tool = await getTool(slug);
   if (!tool) notFound();
 
-  const content = TOOL_CONTENT[tool.slug] ?? contentFromSchema(tool);
+  const content = contentFromSchema(tool);
 
   return (
     <main className="max-w-5xl mx-auto px-5 py-10">

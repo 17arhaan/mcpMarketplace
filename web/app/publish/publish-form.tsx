@@ -76,12 +76,19 @@ export function PublishForm() {
 
   if (successSlug) {
     return (
-      <div className="code-block rounded-lg p-6 text-center">
-        <p className="font-mono text-sm text-[#22c55e] mb-1">tool submitted</p>
-        <p className="font-mono text-xs text-[#525252]">
-          sandbox validation in progress — check{" "}
-          <span className="text-white">mcp-get info {successSlug}</span>
-        </p>
+      <div className="code-block rounded-lg p-6 space-y-3">
+        <p className="font-mono text-sm text-[#22c55e] text-center">submitted for review ✓</p>
+        <div className="font-mono text-[12px] text-[#a3a3a3] leading-relaxed text-center">
+          your tool <span className="text-white">{successSlug}</span> is queued for admin approval.
+          we&apos;ll review it and you&apos;ll see it go live on{" "}
+          <a href={`/tools/${successSlug}`} className="text-[#3b82f6] hover:underline">
+            /tools/{successSlug}
+          </a>{" "}
+          once approved.
+        </div>
+        <div className="font-mono text-[11px] text-[#525252] text-center">
+          status: <span className="text-[#f59e0b]">pending_review</span>
+        </div>
       </div>
     );
   }

@@ -33,6 +33,7 @@ class UserProfile(BaseModel):
     id: uuid.UUID
     username: str
     email: str
+    is_admin: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.db import Base, engine
 from api.models import install, rating, tool, user  # noqa: F401 — register models
-from api.routers import auth, installs, ratings, tools
+from api.routers import admin, auth, installs, ratings, tools
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(auth.router)
 app.include_router(tools.router)
 app.include_router(installs.router)
 app.include_router(ratings.router)
+app.include_router(admin.router)
 
 
 @app.get("/health")

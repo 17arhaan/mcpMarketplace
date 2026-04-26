@@ -13,6 +13,7 @@ from api.models.tool import SandboxStatus, Tag, Tool, ToolStatus, ToolVersion, t
 from api.models.user import User
 from api.schemas.tools import ToolDetail, ToolListResponse
 from api.services.cache import cache_delete_pattern, cache_get, cache_set
+from api.services.moderation import ModerationError, check_text
 from api.services.rate_limit import check_rate_limit
 from api.services.sandbox import run_sandbox
 from api.services.storage import presigned_download_url, upload_tarball
@@ -39,7 +40,8 @@ def _run_sandbox_and_update(tool_version_id: str, s3_key: str, mcp_schema: dict)
         if result.passed:
             tool = db.query(Tool).filter(Tool.id == version.tool_id).first()
             if tool:
-                tool.status = ToolStatus.active
+                # Sandbox passed — queue for human admin review before going public
+                tool.status = ToolStatus.pending_review
                 tool.latest_version = version.version
 
         db.commit()
@@ -171,6 +173,13 @@ async def publish_tool(
     db: Session = Depends(get_db),
 ):
     check_rate_limit(f"publish:{user.id}", max_requests=10, window_seconds=3600)
+
+    try:
+        check_text(name, field="name")
+        check_text(slug, field="slug")
+        check_text(description, field="description")
+    except ModerationError as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
     if db.query(Tool).filter(Tool.slug == slug).first():
         raise HTTPException(status_code=409, detail="Slug already taken")
