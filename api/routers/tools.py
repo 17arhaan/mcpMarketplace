@@ -7,7 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPExcepti
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
-from api.db import get_db
+from api.db import SessionLocal, get_db
 from api.dependencies import get_current_user
 from api.models.tool import SandboxStatus, Tag, Tool, ToolStatus, ToolVersion, tool_tags
 from api.models.user import User
@@ -22,25 +22,29 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/tools", tags=["tools"])
 
 
-def _run_sandbox_and_update(tool_version_id: str, s3_key: str, mcp_schema: dict, db: Session):
-    version = db.query(ToolVersion).filter(ToolVersion.id == tool_version_id).first()
-    if not version:
-        return
-    version.sandbox_status = SandboxStatus.running
-    db.commit()
+def _run_sandbox_and_update(tool_version_id: str, s3_key: str, mcp_schema: dict):
+    db = SessionLocal()
+    try:
+        version = db.query(ToolVersion).filter(ToolVersion.id == tool_version_id).first()
+        if not version:
+            return
+        version.sandbox_status = SandboxStatus.running
+        db.commit()
 
-    result = run_sandbox(s3_key, mcp_schema)
+        result = run_sandbox(s3_key, mcp_schema)
 
-    version.sandbox_status = SandboxStatus.passed if result.passed else SandboxStatus.failed
-    version.sandbox_log = result.log
+        version.sandbox_status = SandboxStatus.passed if result.passed else SandboxStatus.failed
+        version.sandbox_log = result.log
 
-    if result.passed:
-        tool = db.query(Tool).filter(Tool.id == version.tool_id).first()
-        if tool:
-            tool.status = ToolStatus.active
-            tool.latest_version = version.version
+        if result.passed:
+            tool = db.query(Tool).filter(Tool.id == version.tool_id).first()
+            if tool:
+                tool.status = ToolStatus.active
+                tool.latest_version = version.version
 
-    db.commit()
+        db.commit()
+    finally:
+        db.close()
 
 
 @router.get("", response_model=ToolListResponse)
@@ -193,7 +197,7 @@ async def publish_tool(
     db.refresh(tool)
 
     cache_delete_pattern("tools:search:*")
-    background_tasks.add_task(_run_sandbox_and_update, str(tv.id), s3_key, schema, db)
+    background_tasks.add_task(_run_sandbox_and_update, str(tv.id), s3_key, schema)
     return tool
 
 
@@ -236,7 +240,7 @@ async def publish_version(
     db.commit()
 
     cache_delete_pattern("tools:search:*")
-    background_tasks.add_task(_run_sandbox_and_update, str(tv.id), s3_key, schema, db)
+    background_tasks.add_task(_run_sandbox_and_update, str(tv.id), s3_key, schema)
     return {"message": f"Version {version} submitted for validation"}
 
 

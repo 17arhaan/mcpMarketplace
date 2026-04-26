@@ -56,9 +56,11 @@ def log_install(
     redis_count = increment_install_count(str(body.tool_id))
     if redis_count >= BATCH_FLUSH_THRESHOLD:
         tool.install_count = (tool.install_count or 0) + redis_count
-        from api.services.cache import get_redis
-
-        get_redis().delete(f"install_count:{body.tool_id}")
+        try:
+            from api.services.cache import get_redis
+            get_redis().delete(f"install_count:{body.tool_id}")
+        except Exception:
+            pass
 
     db.commit()
     db.refresh(install)

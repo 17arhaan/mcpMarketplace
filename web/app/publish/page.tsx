@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { PublishForm } from "./publish-form";
+import { RequireAuth } from "../components/require-auth";
 
 export const metadata: Metadata = {
   title: "Publish a Tool",
@@ -60,6 +62,7 @@ mcp-get publish ./my-tool`,
 
 export default function PublishPage() {
   return (
+    <RequireAuth>
     <main className="max-w-3xl mx-auto px-5 py-10">
       <div className="mb-10">
         <p className="font-mono text-[#22c55e] text-sm mb-3">~ publish</p>
@@ -142,6 +145,13 @@ export default function PublishPage() {
           </Link>
         </p>
       </div>
+
+      {/* Browser upload */}
+      <div className="border-t border-[#262626] pt-8">
+        <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-4">publish from browser</h2>
+        <PublishForm />
+      </div>
     </main>
+    </RequireAuth>
   );
 }

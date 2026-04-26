@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { NavAuth } from "./components/nav-auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,6 +49,7 @@ function Navbar() {
               {link.label}
             </Link>
           ))}
+          <NavAuth />
           <a
             href="https://github.com/17arhaan/mcpMarketplace"
             target="_blank"

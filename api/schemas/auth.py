@@ -18,10 +18,15 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     jwt: str
     expires_at: datetime
+    username: str = ""
 
 
 class ApiKeyResponse(BaseModel):
     api_key: str
+
+
+class SupabaseExchangeRequest(BaseModel):
+    access_token: str
 
 
 class UserProfile(BaseModel):

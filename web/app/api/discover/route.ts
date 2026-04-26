@@ -69,7 +69,28 @@ async function executeTool(name: string, input: Record<string, string>): Promise
   return "Unknown tool.";
 }
 
+async function verifyToken(token: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
+  const authHeader = req.headers.get("authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+
+  if (!token || !(await verifyToken(token))) {
+    return new Response(JSON.stringify({ error: "Login required to use AI discovery." }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const { message } = await req.json();
 
   const apiKey = process.env.AI_API_KEY || process.env.ANTHROPIC_API_KEY;
@@ -80,7 +101,6 @@ export async function POST(req: NextRequest) {
   const anthropic = new Anthropic({ apiKey });
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: message }];
 
-  // Run agentic loop, collect final text
   let finalText = "";
   const maxIterations = 5;
 
@@ -88,7 +108,6 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: "claude-opus-4-6",
       max_tokens: 1024,
-      thinking: { type: "adaptive" },
       system: SYSTEM_PROMPT,
       tools,
       messages,

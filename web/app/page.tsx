@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface Tool {
@@ -18,33 +18,48 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function HomePage() {
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [sort, setSort] = useState("installs");
+  const [page, setPage] = useState(1);
   const [tools, setTools] = useState<Tool[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const totalPages = Math.ceil(total / 20);
 
-  const search = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ sort, limit: "20" });
-      if (query) params.set("q", query);
-      const res = await fetch(`${API_URL}/tools?${params}`);
-      const data = await res.json();
-      setTools(data.tools ?? []);
-      setTotal(data.total ?? 0);
-      setSearched(true);
-    } catch {
-      setTools([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [query, sort]);
-
+  // Debounce text input and reset page when query changes
   useEffect(() => {
-    const t = setTimeout(search, 300);
+    const t = setTimeout(() => {
+      setDebouncedQuery(query);
+      setPage(1);
+    }, 300);
     return () => clearTimeout(t);
-  }, [search]);
+  }, [query]);
+
+  // Fetch whenever debounced query, sort, or page changes
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({ sort, limit: "20", page: String(page) });
+        if (debouncedQuery) params.set("q", debouncedQuery);
+        const res = await fetch(`${API_URL}/tools?${params}`);
+        const data = await res.json();
+        if (!cancelled) {
+          setTools(data.tools ?? []);
+          setTotal(data.total ?? 0);
+          setSearched(true);
+        }
+      } catch {
+        if (!cancelled) setTools([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [debouncedQuery, sort, page]);
 
   return (
     <main>
@@ -112,7 +127,7 @@ export default function HomePage() {
             {(["installs", "rating", "newest"] as const).map((s) => (
               <button
                 key={s}
-                onClick={() => setSort(s)}
+                onClick={() => { setSort(s); setPage(1); }}
                 className={`px-3 py-2.5 text-xs font-mono transition-colors ${
                   sort === s
                     ? "bg-[#1a1a1a] text-white"
@@ -177,6 +192,29 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {searched && !loading && totalPages > 1 && (
+          <div className="flex items-center justify-center gap-6 mt-8 font-mono text-sm">
+            <button
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page <= 1}
+              className="text-[#525252] hover:text-white disabled:opacity-30 transition-colors"
+            >
+              ← prev
+            </button>
+            <span className="text-[#525252]">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= totalPages}
+              className="text-[#525252] hover:text-white disabled:opacity-30 transition-colors"
+            >
+              next →
+            </button>
           </div>
         )}
       </section>

@@ -2,12 +2,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { CopyButton } from "../../components/copy-button";
+import { RatingForm } from "../../components/rating-form";
 
 interface ToolVersion {
   id: string;
   version: string;
   sandbox_status: string;
   published_at: string;
+  mcp_schema: Record<string, unknown> | null;
 }
 
 interface Tool {
@@ -269,6 +271,17 @@ tools/call → get({ "key": "user:1:name" })
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+function contentFromSchema(tool: Tool): ToolContent | null {
+  const v = tool.versions.find((ver) => ver.version === tool.latest_version);
+  const schemaTool = v?.mcp_schema?.tools as Array<{ name: string; description?: string }> | undefined;
+  if (!schemaTool?.length) return null;
+  return {
+    features: schemaTool.map((t) => `${t.name}${t.description ? ` — ${t.description}` : ""}`),
+    flowchart: "",
+    usage: `$ mcp-get install ${tool.slug}\n\n# available tools:\n${schemaTool.map((t) => `tools/call → ${t.name}({...})`).join("\n")}`,
+  };
+}
+
 async function getTool(slug: string): Promise<Tool | null> {
   try {
     const res = await fetch(`${API_URL}/tools/${slug}`, { next: { revalidate: 60 } });
@@ -309,7 +322,7 @@ export default async function ToolPage({
   const tool = await getTool(slug);
   if (!tool) notFound();
 
-  const content = TOOL_CONTENT[tool.slug];
+  const content = TOOL_CONTENT[tool.slug] ?? contentFromSchema(tool);
 
   return (
     <main className="max-w-5xl mx-auto px-5 py-10">
@@ -369,7 +382,7 @@ export default async function ToolPage({
           )}
 
           {/* How it works — flowchart */}
-          {content && (
+          {content?.flowchart && (
             <div className="mb-8">
               <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">how it works</h2>
               <div className="code-block rounded-lg overflow-x-auto">
@@ -405,7 +418,7 @@ export default async function ToolPage({
           )}
 
           {/* Versions */}
-          <div>
+          <div className="mt-8">
             <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">versions</h2>
             {tool.versions.length === 0 ? (
               <p className="font-mono text-sm text-[#525252]">no versions published</p>
@@ -439,6 +452,8 @@ export default async function ToolPage({
               </div>
             )}
           </div>
+
+          <RatingForm toolId={String(tool.id)} />
         </div>
 
         {/* Sidebar */}

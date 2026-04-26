@@ -46,9 +46,9 @@ fi
 
 LOGIN=$(curl -sf -X POST "$API_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d "{\"username\":\"e2euser_$$\",\"password\":\"testpass123\"}" 2>/dev/null || echo "")
+  -d "{\"email\":\"e2e_$$@test.com\",\"password\":\"testpass123\"}" 2>/dev/null || echo "")
 
-TOKEN=$(echo "$LOGIN" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])" 2>/dev/null || echo "")
+TOKEN=$(echo "$LOGIN" | python3 -c "import sys,json; print(json.load(sys.stdin)['jwt'])" 2>/dev/null || echo "")
 
 if [ -n "$TOKEN" ]; then
   green "Login and get JWT"

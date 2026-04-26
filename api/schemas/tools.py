@@ -10,6 +10,7 @@ class ToolVersionOut(BaseModel):
     version: str
     sandbox_status: SandboxStatus
     published_at: datetime
+    mcp_schema: dict | None = None
 
     model_config = {"from_attributes": True}
 

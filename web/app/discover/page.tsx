@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { RequireAuth } from "../components/require-auth";
+import { getToken } from "../lib/auth";
 
 interface Message {
   role: "user" | "assistant";
@@ -44,7 +46,7 @@ function getLoadingMessage(query: string): string {
   return LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
 }
 
-export default function DiscoverPage() {
+function DiscoverChat() {
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -81,11 +83,19 @@ export default function DiscoverPage() {
     setLoading(true);
 
     try {
+      const token = getToken();
       const res = await fetch("/api/discover", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ message: userMessage }),
       });
+      if (res.status === 401) {
+        setMessages((prev) => [...prev, { role: "assistant", content: "Session expired — please log in again." }]);
+        return;
+      }
       const data = await res.json();
       setMessages((prev) => [
         ...prev,
@@ -180,10 +190,7 @@ export default function DiscoverPage() {
 
       <div className="border-t border-[#262626] bg-[#0a0a0a]/90 backdrop-blur-sm px-5 py-4 shrink-0">
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            send(input);
-          }}
+          onSubmit={(e) => { e.preventDefault(); send(input); }}
           className="max-w-2xl mx-auto flex gap-2"
         >
           <div className="relative flex-1">
@@ -208,5 +215,13 @@ export default function DiscoverPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function DiscoverPage() {
+  return (
+    <RequireAuth>
+      <DiscoverChat />
+    </RequireAuth>
   );
 }
