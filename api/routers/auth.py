@@ -72,6 +72,7 @@ def supabase_exchange(body: SupabaseExchangeRequest, db: Session = Depends(get_d
 
     try:
         from jose import jwt as jose_jwt
+
         payload = jose_jwt.decode(
             body.access_token,
             settings.supabase_jwt_secret,
@@ -91,6 +92,7 @@ def supabase_exchange(body: SupabaseExchangeRequest, db: Session = Depends(get_d
         base = meta_username.lower() if meta_username else email.split("@")[0].lower()
         # strip non-alphanumeric/hyphen chars
         import re
+
         base = re.sub(r"[^a-z0-9_-]", "", base) or "user"
         username = base
         i = 1

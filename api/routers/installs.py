@@ -58,6 +58,7 @@ def log_install(
         tool.install_count = (tool.install_count or 0) + redis_count
         try:
             from api.services.cache import get_redis
+
             get_redis().delete(f"install_count:{body.tool_id}")
         except Exception:
             pass
