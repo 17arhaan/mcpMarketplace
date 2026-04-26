@@ -6,10 +6,8 @@ psycopg2-binary==2.9.9
 pydantic[email]==2.9.2
 pydantic-settings==2.5.2
 python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
-bcrypt==4.0.1
 bcrypt==4.0.1
 python-multipart==0.0.12
-boto3==1.35.27
+supabase==2.29.0
 redis==5.1.0
 docker==7.1.0

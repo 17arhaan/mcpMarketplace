@@ -1,39 +1,43 @@
-import boto3
+import os
+import tempfile
+from supabase import create_client, Client
 from api.config import settings
-from botocore.config import Config
 
-_client = None
+BUCKET = "mcp-tools"
+_client: Client | None = None
 
 
-def get_s3():
+def get_supabase() -> Client:
     global _client
     if _client is None:
-        _client = boto3.client(
-            "s3",
-            endpoint_url=settings.s3_endpoint,
-            aws_access_key_id=settings.s3_access_key,
-            aws_secret_access_key=settings.s3_secret_key,
-            config=Config(signature_version="s3v4"),
-        )
+        _client = create_client(settings.supabase_url, settings.supabase_service_role_key)
         # Ensure bucket exists
         try:
-            _client.head_bucket(Bucket=settings.s3_bucket)
+            buckets = [b.name for b in _client.storage.list_buckets()]
+            if BUCKET not in buckets:
+                _client.storage.create_bucket(BUCKET, options={"public": False})
         except Exception:
-            _client.create_bucket(Bucket=settings.s3_bucket)
+            pass
     return _client
 
 
 def upload_tarball(key: str, data: bytes) -> None:
-    get_s3().put_object(Bucket=settings.s3_bucket, Key=key, Body=data)
+    sb = get_supabase()
+    try:
+        sb.storage.from_(BUCKET).remove([key])
+    except Exception:
+        pass
+    sb.storage.from_(BUCKET).upload(key, data, {"content-type": "application/gzip"})
 
 
 def presigned_download_url(key: str, expires: int = 3600) -> str:
-    return get_s3().generate_presigned_url(
-        "get_object",
-        Params={"Bucket": settings.s3_bucket, "Key": key},
-        ExpiresIn=expires,
-    )
+    sb = get_supabase()
+    res = sb.storage.from_(BUCKET).create_signed_url(key, expires)
+    return res.get("signedURL", "")
 
 
 def download_to_dir(key: str, dest_path: str) -> None:
-    get_s3().download_file(settings.s3_bucket, key, dest_path)
+    sb = get_supabase()
+    data = sb.storage.from_(BUCKET).download(key)
+    with open(dest_path, "wb") as f:
+        f.write(data)
