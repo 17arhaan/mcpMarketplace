@@ -131,7 +131,39 @@ INSERT INTO tools (id, author_id, name, slug, description, latest_version, insta
 
   (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP OpenAPI',       'mcp-openapi',
    'Turn any OpenAPI/Swagger spec into MCP tools automatically. Zero-config REST API integration.',
-   '1.0.0', 1031, 4.7, 'active'::tool_status, NOW() - INTERVAL '12 hours')
+   '1.0.0', 1031, 4.7, 'active'::tool_status, NOW() - INTERVAL '12 hours'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP Spotify',       'mcp-spotify',
+   'Control Spotify playback, search tracks, manage playlists, and get listening stats from any AI agent.',
+   '1.0.0', 743,  4.6, 'active'::tool_status, NOW() - INTERVAL '6 days'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP YouTube',       'mcp-youtube',
+   'Search YouTube, fetch video metadata, get transcripts, and query channel statistics via the YouTube Data API.',
+   '1.0.0', 1204, 4.5, 'active'::tool_status, NOW() - INTERVAL '5 days'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP Sentry',        'mcp-sentry',
+   'Query Sentry issues, stack traces, and release health. Let your AI agent triage errors and suggest fixes.',
+   '1.0.0', 891,  4.7, 'active'::tool_status, NOW() - INTERVAL '4 days'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP Pinecone',      'mcp-pinecone',
+   'Upsert, query, and delete vectors in Pinecone. Build semantic search and RAG pipelines directly from an AI agent.',
+   '1.0.0', 1087, 4.8, 'active'::tool_status, NOW() - INTERVAL '3 days'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP Gmail',         'mcp-gmail',
+   'Read, send, search, and label Gmail messages via OAuth. Let your AI agent manage your inbox end-to-end.',
+   '1.0.0', 1532, 4.6, 'active'::tool_status, NOW() - INTERVAL '2 days'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP HuggingFace',   'mcp-huggingface',
+   'Run inference on any HuggingFace model, search the Hub, and download datasets — all from your AI agent.',
+   '1.0.0', 967,  4.7, 'active'::tool_status, NOW() - INTERVAL '1 day'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP GitLab',        'mcp-gitlab',
+   'Full GitLab integration — repos, merge requests, pipelines, issues, and container registry management.',
+   '1.0.0', 678,  4.4, 'active'::tool_status, NOW() - INTERVAL '18 hours'),
+
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', 'MCP Terraform',     'mcp-terraform',
+   'Plan, apply, and inspect Terraform state from an AI agent. Manage cloud infrastructure through natural language.',
+   '1.0.0', 542,  4.5, 'active'::tool_status, NOW() - INTERVAL '12 hours')
 ON CONFLICT (slug) DO NOTHING;
 
 -- ── Tool versions ──────────────────────────────────────────────────────────────
