@@ -4,26 +4,31 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
-import { clearToken, getUsername, setUsername } from "../lib/auth";
+import { clearToken, exchangeSupabaseToken, getUsername, setUsername } from "../lib/auth";
 
 export function NavAuth() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [username, setUsernameState] = useState<string | null>(null);
   const router = useRouter();
 
+  async function resolveUsername(session: { access_token: string } | null) {
+    if (!session) { setUsernameState(null); return; }
+    const stored = getUsername();
+    if (stored) { setUsernameState(stored); return; }
+    // Username not in localStorage — re-exchange to get it
+    await exchangeSupabaseToken(session.access_token);
+    setUsernameState(getUsername());
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setLoggedIn(!!session);
-      if (session) setUsernameState(getUsername());
+      resolveUsername(session);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setLoggedIn(!!session);
-      if (session) {
-        setUsernameState(getUsername());
-      } else {
-        setUsernameState(null);
-      }
+      resolveUsername(session);
     });
 
     return () => subscription.unsubscribe();
