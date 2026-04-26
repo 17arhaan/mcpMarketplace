@@ -1,101 +1,81 @@
 # MCP Marketplace
 
-A registry for [Model Context Protocol](https://modelcontextprotocol.io) tools. Publish, discover, and install MCP servers with a single command.
+> The registry for [Model Context Protocol](https://modelcontextprotocol.io) tools — discover, publish, and install MCP servers that give your AI agents real capabilities.
 
-```bash
-mcp-get install weather
-mcp-get ask "I need a tool to query databases"
-```
+**[mcpmarketplace-six.vercel.app](https://mcpmarketplace-six.vercel.app)**
 
 ---
 
-## Stack
+## What it is
 
-FastAPI | TypeScript CLI | Next.js 16 | PostgreSQL | Redis | S3 | Docker Sandbox
+MCP Marketplace is a platform where developers publish MCP servers as versioned, sandboxed packages — and where AI builders find and install the exact tool their agent needs.
+
+Every tool published here is automatically validated in an isolated Docker container before going live. No broken packages, no surprises.
 
 ---
 
-## Quick start
+## Features
 
-### Prerequisites
+**For AI builders**
+- Browse and search hundreds of MCP tools
+- AI-powered discovery — describe what you need in plain English, get the right tool
+- One-command install via the CLI
+- Star ratings and community reviews on every tool
 
-- Docker Desktop
-- Python 3.12+
-- Node.js 20+
+**For MCP developers**
+- Publish from the browser or CLI
+- Automatic sandbox validation (Docker, 256 MB limit, no network, 30s timeout)
+- Versioned releases with SHA-256 checksums
+- Instant listing after sandbox passes
 
-### 1. Infrastructure
-
-```bash
-cd infra && docker compose up -d
-```
-
-### 2. API
-
-```bash
-cd api
-cp .env.example .env
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-uvicorn api.main:app --reload
-```
-
-### 3. Web UI
-
-```bash
-cd web && npm install && npm run dev
-```
-
-### 4. CLI
-
-```bash
-cd cli && npm install && npm run build && npm link
-```
-
-### 5. Try it
-
-```bash
-mcp-get login
-mcp-get publish ./tools/weather
-mcp-get search weather
-mcp-get install weather
-```
+**Platform**
+- Supabase Auth — login with email, session auto-refresh
+- Username shown across the platform
+- All interactive features gated behind auth
+- Full-text search with Postgres `tsvector`
+- Redis-backed caching
 
 ---
 
 ## CLI
 
-| Command | Description |
+```bash
+npm install -g mcp-get
+```
+
+| Command | What it does |
 |---|---|
-| `mcp-get login` | Authenticate |
+| `mcp-get login` | Authenticate with your account |
 | `mcp-get search <query>` | Search the registry |
 | `mcp-get install <slug>` | Install a tool |
 | `mcp-get uninstall <slug>` | Remove a tool |
-| `mcp-get update` | Update all tools |
-| `mcp-get publish <dir>` | Publish a tool |
-| `mcp-get info <slug>` | Tool details |
-| `mcp-get list` | Installed tools |
-| `mcp-get ask "<query>"` | AI-powered discovery |
+| `mcp-get update` | Update all installed tools |
+| `mcp-get publish <dir>` | Publish a tool to the registry |
+| `mcp-get info <slug>` | View tool details and sandbox status |
+| `mcp-get list` | List installed tools |
+| `mcp-get ask "<query>"` | AI-powered tool discovery |
 
 ---
 
 ## AI Discovery
 
-Describe what you need in plain English — an agentic AI loop searches the registry, evaluates tools, and recommends the best fit.
-
 ```bash
-export AI_API_KEY=your-api-key
-mcp-get ask "I need to search GitHub repositories"
+mcp-get ask "I need to query a Postgres database"
+mcp-get ask "Find me a tool to search GitHub repos"
+mcp-get ask "What tools can fetch web pages?"
 ```
 
-Also available at `http://localhost:3000/discover`.
+Also available at [/discover](https://mcpmarketplace-six.vercel.app/discover) — requires login.
+
+Powered by Claude with tool-use — searches the live registry, evaluates options, and recommends the best match with an install command.
 
 ---
 
-## Publishing
+## Publishing a tool
 
-Add `mcp.json` to your tool directory:
-
-```json
+```bash
+# 1. create your MCP server
+# 2. add mcp.json to the root:
 {
   "name": "my-tool",
   "slug": "my-tool",
@@ -103,28 +83,31 @@ Add `mcp.json` to your tool directory:
   "description": "What your tool does",
   "entry": "server.py"
 }
-```
 
-```bash
+# 3. publish
 mcp-get publish ./my-tool
 ```
 
-Tools are validated in an isolated Docker sandbox before going live.
+Or publish directly from the browser at [/publish](https://mcpmarketplace-six.vercel.app/publish).
+
+Every submission goes through an isolated Docker sandbox. Status is visible via `mcp-get info <slug>`.
 
 ---
 
-## Testing
+## Stack
 
-```bash
-./scripts/e2e-test.sh
-```
+| Layer | Tech |
+|---|---|
+| Frontend | Next.js 16 App Router, TypeScript, Tailwind CSS |
+| Backend | FastAPI, SQLAlchemy, PostgreSQL, Redis |
+| Auth | Supabase Auth + custom JWT exchange |
+| Storage | Supabase S3-compatible storage |
+| Sandbox | Docker (isolated, network-disabled, memory-limited) |
+| AI | Anthropic Claude, tool-use agentic loop |
+| Deploy | Vercel (web) · Railway (api) |
 
 ---
 
 ## License
 
-This project is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
-
-You may use, modify, and distribute this software, but any modified version — including use over a network (e.g., as a hosted service) — must also be released under AGPL-3.0 with full source code.
-
-See [LICENSE](LICENSE) for full terms.
+[AGPL-3.0](LICENSE) — use it, modify it, but keep it open. Any hosted version must publish its source.
