@@ -1,3 +1,4 @@
 # Covered by root .gitignore
 .vercel
 .env*
+!.env.example
