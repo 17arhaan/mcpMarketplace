@@ -28,7 +28,10 @@ interface Tool {
 }
 
 interface ToolContent {
-  features: string[];
+  whatItDoes: string[];
+  keyFeatures: string[];
+  techStack: string[];
+  methods: string[];
   flowchart: string;
   usage: string;
 }
@@ -70,20 +73,21 @@ function buildFlowchart(slug: string, methods: string[]): string {
   return lines.join("\n");
 }
 
-function contentFromSchema(tool: Tool): ToolContent | null {
+function contentFromSchema(tool: Tool): ToolContent {
   const v = tool.versions.find((ver) => ver.version === tool.latest_version);
-  const schemaTool = v?.mcp_schema?.tools as Array<{ name: string; description?: string }> | undefined;
-  if (!schemaTool?.length) {
-    return {
-      features: [],
-      flowchart: buildFlowchart(tool.slug, []),
-      usage: `$ mcp-get install ${tool.slug}`,
-    };
-  }
+  const schema = v?.mcp_schema ?? {};
+  const schemaMethods = (schema.tools as Array<{ name: string; description?: string }> | undefined) ?? [];
+  const whatItDoes = (schema.what_it_does as string[] | undefined) ?? [];
+  const keyFeatures = (schema.key_features as string[] | undefined) ?? [];
+  const techStack = (schema.tech_stack as string[] | undefined) ?? [];
+  const methods = schemaMethods.map((t) => `${t.name}${t.description ? ` — ${t.description}` : ""}`);
   return {
-    features: schemaTool.map((t) => `${t.name}${t.description ? ` — ${t.description}` : ""}`),
-    flowchart: buildFlowchart(tool.slug, schemaTool.map((t) => t.name)),
-    usage: `$ mcp-get install ${tool.slug}\n\n# available tools:\n${schemaTool.map((t) => `tools/call → ${t.name}({...})`).join("\n")}`,
+    whatItDoes,
+    keyFeatures,
+    techStack,
+    methods,
+    flowchart: buildFlowchart(tool.slug, schemaMethods.map((t) => t.name)),
+    usage: `$ mcp-get install ${tool.slug}${methods.length ? `\n\n# available methods:\n${schemaMethods.map((t) => `tools/call → ${t.name}({...})`).join("\n")}` : ""}`,
   };
 }
 
@@ -171,23 +175,69 @@ export default async function ToolPage({
             </div>
           </div>
 
-          {/* Features */}
-          {content && (
+          {/* What it does */}
+          {content.whatItDoes.length > 0 && (
             <div className="mb-8">
-              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">features</h2>
+              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">⤷ what it does</h2>
               <div className="code-block rounded-lg divide-y divide-[#262626]">
-                {content.features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-2.5 font-mono text-sm text-[#a3a3a3]">
-                    <span className="text-[#22c55e]">+</span>
-                    {f}
+                {content.whatItDoes.map((line, i) => (
+                  <div key={i} className="flex items-start gap-3 px-4 py-2.5 font-mono text-sm text-[#a3a3a3]">
+                    <span className="text-[#22c55e] shrink-0">•</span>
+                    {line}
                   </div>
                 ))}
               </div>
             </div>
           )}
 
+          {/* Key Features */}
+          {content.keyFeatures.length > 0 && (
+            <div className="mb-8">
+              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">⤷ key features</h2>
+              <div className="code-block rounded-lg divide-y divide-[#262626]">
+                {content.keyFeatures.map((line, i) => {
+                  const colon = line.indexOf(":");
+                  const label = colon > -1 ? line.slice(0, colon + 1) : null;
+                  const rest = colon > -1 ? line.slice(colon + 1) : line;
+                  return (
+                    <div key={i} className="flex items-start gap-3 px-4 py-2.5 font-mono text-sm">
+                      <span className="text-[#3b82f6] shrink-0">•</span>
+                      <span>
+                        {label && <span className="text-white font-medium">{label}</span>}
+                        <span className="text-[#a3a3a3]">{rest}</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Tech Stack */}
+          {content.techStack.length > 0 && (
+            <div className="mb-8">
+              <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">⤷ tech stack</h2>
+              <div className="code-block rounded-lg divide-y divide-[#262626]">
+                {content.techStack.map((line, i) => {
+                  const colon = line.indexOf(":");
+                  const label = colon > -1 ? line.slice(0, colon + 1) : null;
+                  const rest = colon > -1 ? line.slice(colon + 1) : line;
+                  return (
+                    <div key={i} className="flex items-start gap-3 px-4 py-2.5 font-mono text-sm">
+                      <span className="text-[#f59e0b] shrink-0">•</span>
+                      <span>
+                        {label && <span className="text-white font-medium">{label}</span>}
+                        <span className="text-[#a3a3a3]">{rest}</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* How it works — flowchart */}
-          {content?.flowchart && (
+          {content.flowchart && (
             <div className="mb-8">
               <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">how it works</h2>
               <div className="code-block rounded-lg overflow-x-auto">
@@ -203,7 +253,7 @@ export default async function ToolPage({
           )}
 
           {/* Usage example */}
-          {content && (
+          {content.usage && (
             <div className="mb-8">
               <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">usage</h2>
               <div className="code-block rounded-lg overflow-x-auto">
