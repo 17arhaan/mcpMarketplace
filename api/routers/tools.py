@@ -88,7 +88,18 @@ def list_tools(
 
     total = query.count()
     tools = query.offset((page - 1) * limit).limit(limit).all()
-    result = ToolListResponse(tools=tools, total=total, page=page, limit=limit)
+
+    # Attach author_username — single batched query, not N+1
+    author_ids = {t.author_id for t in tools}
+    authors = {u.id: u.username for u in db.query(User).filter(User.id.in_(author_ids)).all()} if author_ids else {}
+    tool_outs = []
+    for t in tools:
+        from api.schemas.tools import ToolOut
+
+        out = ToolOut.model_validate(t).model_copy(update={"author_username": authors.get(t.author_id)})
+        tool_outs.append(out)
+
+    result = ToolListResponse(tools=tool_outs, total=total, page=page, limit=limit)
     cache_set(cache_key, result.model_dump(), ttl=300)
     return result
 

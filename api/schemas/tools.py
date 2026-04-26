@@ -16,6 +16,13 @@ class ToolVersionOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class TagOut(BaseModel):
+    name: str
+    slug: str
+
+    model_config = {"from_attributes": True}
+
+
 class ToolOut(BaseModel):
     id: uuid.UUID
     name: str
@@ -26,6 +33,8 @@ class ToolOut(BaseModel):
     avg_rating: float | None
     status: ToolStatus
     created_at: datetime
+    tags: list[TagOut] = []
+    author_username: str | None = None
 
     model_config = {"from_attributes": True}
 
