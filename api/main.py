@@ -9,8 +9,24 @@ from api.models import install, rating, tool, user  # noqa: F401 — register mo
 from api.routers import admin, auth, installs, ratings, tools
 
 
+def _run_migrations() -> None:
+    """Apply additive schema changes that create_all won't handle on existing tables."""
+    from sqlalchemy import text
+    with engine.begin() as conn:
+        # Add is_admin column if missing (added after initial deploy)
+        conn.execute(text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE"
+        ))
+        # Add new tool_status enum values if missing
+        for val in ("pending_review", "rejected"):
+            conn.execute(text(
+                f"ALTER TYPE tool_status ADD VALUE IF NOT EXISTS '{val}'"
+            ))
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    _run_migrations()
     Base.metadata.create_all(bind=engine)
     yield
 
