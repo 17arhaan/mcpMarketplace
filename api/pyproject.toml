@@ -5,3 +5,6 @@ line-length = 120
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
 ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["api"]
