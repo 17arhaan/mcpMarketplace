@@ -20,6 +20,10 @@ export default function LoginPage() {
     try {
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) { setError(authError.message); return; }
+      if (!data.session?.access_token) {
+        setError("No session returned from Supabase. Confirm your email or check Supabase Auth settings.");
+        return;
+      }
 
       const jwt = await exchangeSupabaseToken(data.session.access_token);
       if (!jwt) { setError("Auth exchange failed — check your API server."); return; }

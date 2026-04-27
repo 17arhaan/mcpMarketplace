@@ -28,7 +28,8 @@ export function setUsername(username: string): void {
 }
 
 /** Exchange a Supabase access token for our backend JWT and store it. */
-export async function exchangeSupabaseToken(accessToken: string): Promise<string | null> {
+export async function exchangeSupabaseToken(accessToken: string | undefined | null): Promise<string | null> {
+  if (!accessToken) return null;
   try {
     const res = await fetch(`${API_URL}/auth/supabase`, {
       method: "POST",
