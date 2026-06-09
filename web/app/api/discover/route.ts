@@ -118,15 +118,23 @@ async function verifyToken(token: string): Promise<boolean> {
   }
 }
 
-export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization") || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+// === AUTH PAUSED ===
+// Login is temporarily disabled — AI discovery is open to everyone.
+// To re-enable, set this to false (and revert the bypass in
+// api/dependencies.py and app/components/require-auth.tsx).
+const AUTH_PAUSED = true;
 
-  if (!token || !(await verifyToken(token))) {
-    return new Response(JSON.stringify({ error: "Login required to use AI discovery." }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+export async function POST(req: NextRequest) {
+  if (!AUTH_PAUSED) {
+    const authHeader = req.headers.get("authorization") || "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+
+    if (!token || !(await verifyToken(token))) {
+      return new Response(JSON.stringify({ error: "Login required to use AI discovery." }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   const { message } = await req.json();

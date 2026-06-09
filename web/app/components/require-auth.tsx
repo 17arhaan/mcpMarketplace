@@ -4,7 +4,21 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabase";
 
+// === AUTH PAUSED ===
+// Login is temporarily disabled — every visitor is treated as authenticated.
+// To re-enable, set this to false (and revert the backend bypass in
+// api/dependencies.py and the discover route check in app/api/discover/route.ts).
+const AUTH_PAUSED = true;
+
 export function RequireAuth({ children }: { children: React.ReactNode }) {
+  // Auth paused: render gated content for everyone, no hooks/session checks.
+  if (AUTH_PAUSED) {
+    return <>{children}</>;
+  }
+  return <RequireAuthGate>{children}</RequireAuthGate>;
+}
+
+function RequireAuthGate({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"loading" | "authed" | "guest">("loading");
 
   useEffect(() => {

@@ -6,6 +6,11 @@ import { getFreshToken, getUsername } from "../lib/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// === AUTH PAUSED ===
+// Login is temporarily disabled — anyone can rate; requests go up as the
+// shared backend "guest" user. To re-enable, set this to false.
+const AUTH_PAUSED = true;
+
 export function RatingForm({ toolId }: { toolId: string }) {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -29,9 +34,9 @@ export function RatingForm({ toolId }: { toolId: string }) {
     });
   }, []);
 
-  if (loggedIn === null) return null;
+  if (loggedIn === null && !AUTH_PAUSED) return null;
 
-  if (!loggedIn) {
+  if (!loggedIn && !AUTH_PAUSED) {
     return (
       <div className="mt-8">
         <h2 className="font-mono text-[12px] text-[#525252] uppercase tracking-wider mb-3">rate this tool</h2>
@@ -67,13 +72,14 @@ export function RatingForm({ toolId }: { toolId: string }) {
     setLoading(true);
     setError("");
     const token = await getFreshToken();
-    if (!token) { setError("not logged in"); setLoading(false); return; }
+    if (!token && !AUTH_PAUSED) { setError("not logged in"); setLoading(false); return; }
     try {
       const res = await fetch(`${API_URL}/ratings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Auth paused: token may be absent — backend falls back to guest user.
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ tool_id: toolId, score, review: review || null }),
       });
